@@ -39,3 +39,7 @@
 
 # debug information files
 *.dwo
+
+/PPT
+/.idea
+/.github

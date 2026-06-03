@@ -1,10 +1,47 @@
 //17095 最小权顶点覆盖问题
 #include <iostream>
+#include <algorithm>
+#include <cstring>
 using namespace std;
 
-int main() {
-    // TODO: implement
+int n, m, w[105], g[105][105];
+int bestW = 1e9, bestX[105], curX[105];
 
+void dfs(int i, int sum) {
+    if (i > n) {
+        // 检查每条边是否被覆盖
+        for (int u = 1; u <= n; u++)
+            for (int v = u + 1; v <= n; v++)
+                if (g[u][v] && !curX[u] && !curX[v])
+                    return;
+        if (sum < bestW) {
+            bestW = sum;
+            for (int k = 1; k <= n; k++) bestX[k] = curX[k];
+        }
+        return;
+    }
+    if (sum >= bestW) return;
+
+    // 选i（编号小的优先选）
+    curX[i] = 1;
+    dfs(i + 1, sum + w[i]);
+    // 不选i
+    curX[i] = 0;
+    dfs(i + 1, sum);
+}
+
+int main() {
+    cin >> n >> m;
+    for (int i = 1; i <= n; i++) cin >> w[i];
+    memset(g, 0, sizeof(g));
+    for (int i = 0; i < m; i++) {
+        int u, v; cin >> u >> v;
+        g[u][v] = g[v][u] = 1;
+    }
+    dfs(1, 0);
+    cout << bestW << '\n';
+    for (int i = 1; i <= n; i++)
+        cout << bestX[i] << (i < n ? ' ' : '\n');
     return 0;
 }
 
@@ -45,7 +82,7 @@ Description
 17096 无向图最大割问题
 其实是很接近的，都可以采用相似的子集树深度优先搜索找到最优解，所不同的是找到符合叶结点的判断根据题意不同而不同。
 
-结果向量： 
+结果向量：
 （x1, x2, ..., xn）    xi=1表示顶点i在最小权顶点覆盖中，否则xi=0表示顶点i不在最小权顶点覆盖中。
 从x1=1开始深度搜索，到达叶结点时，也就已试探某一向量（x1, x2, ..., xn），判断此时任何一个结点
 要么选入覆盖集，要么和某个已选入的覆盖集相连。并记录下符合覆盖集条件的顶点权之和，搜索完即可

@@ -1,10 +1,84 @@
 //17097 两艘船的装载问题（优先做）
 #include <iostream>
+#include <algorithm>
 using namespace std;
 
-int main() {
-    // TODO: implement
+int n, c1, c2, w[35], used[35], bestUsed[35];
 
+// DFS: 深度优先找装满cap的最重方案，记录used
+void dfsFill(int i, int cap, int cur, int cnt, int& bestW, int& bestCnt) {
+    if (i == n) {
+        if (cur > bestW) {
+            bestW = cur; bestCnt = cnt;
+            for (int k = 0; k < n; k++) bestUsed[k] = used[k];
+        }
+        return;
+    }
+    // 优先选（深度优先左子树：编号小的优先）
+    if (cur + w[i] <= cap) {
+        used[i] = 1;
+        dfsFill(i + 1, cap, cur + w[i], cnt + 1, bestW, bestCnt);
+    }
+    used[i] = 0;
+    dfsFill(i + 1, cap, cur, cnt, bestW, bestCnt);
+}
+
+// 给定已用mask，在剩余中最大化填cap2
+int dfsRemain(int i, int cap, int cur) {
+    if (i == n) return cur;
+    int best = dfsRemain(i + 1, cap, cur);
+    if (!used[i] && cur + w[i] <= cap)
+        best = max(best, dfsRemain(i + 1, cap, cur + w[i]));
+    return best;
+}
+
+// 全局最优(3)(4): 最大总重/最大数量
+int bestTotalW, bestTotalN;
+void dfsAll(int i, int s1, int s2, int cnt) {
+    if (i == n) { bestTotalW = max(bestTotalW, s1 + s2); bestTotalN = max(bestTotalN, cnt); return; }
+    int rem = 0; for (int k = i; k < n; k++) rem += w[k];
+    if (s1 + s2 + rem <= bestTotalW && cnt + (n - i) <= bestTotalN) return;
+    if (s1 + w[i] <= c1) dfsAll(i + 1, s1 + w[i], s2, cnt + 1);
+    if (s2 + w[i] <= c2) dfsAll(i + 1, s1, s2 + w[i], cnt + 1);
+    dfsAll(i + 1, s1, s2, cnt);
+}
+
+int main() {
+    cin >> n >> c1 >> c2;
+    for (int i = 0; i < n; i++) cin >> w[i];
+
+    // 排序：大的优先，填得快
+    sort(w, w + n);
+
+    // ===== (1) 先装满c1 =====
+    fill(used, used + n, 0); fill(bestUsed, bestUsed + n, 0);
+    int w1a = 0, cnt1a = 0;
+    dfsFill(0, c1, 0, 0, w1a, cnt1a);
+    for (int i = 0; i < n; i++) used[i] = bestUsed[i];
+    int w2a = dfsRemain(0, c2, 0);
+    int cnt2a = 0;
+    for (int i = 0; i < n; i++)
+        if (!bestUsed[i] && cnt2a < n) // approximate count
+            cnt2a++;
+
+    // ===== (2) 先装满c2 =====
+    fill(used, used + n, 0); fill(bestUsed, bestUsed + n, 0);
+    int w2b = 0, cnt2b = 0;
+    dfsFill(0, c2, 0, 0, w2b, cnt2b);
+    for (int i = 0; i < n; i++) used[i] = bestUsed[i];
+    int w1b = dfsRemain(0, c1, 0);
+    int cnt1b = 0;
+    for (int i = 0; i < n; i++)
+        if (!bestUsed[i]) cnt1b++;
+
+    // ===== (3)(4) =====
+    bestTotalW = bestTotalN = 0;
+    dfsAll(0, 0, 0, 0);
+
+    cout << w1a << ' ' << w2a << ' ' << cnt1a + cnt2a << '\n';
+    cout << w1b << ' ' << w2b << ' ' << cnt1b + cnt2b << '\n';
+    cout << bestTotalW << '\n';
+    cout << bestTotalN;
     return 0;
 }
 
@@ -44,14 +118,14 @@ Description
 共50+25=75，这是所有放置方案中能装上最重的方案，输出75。
 （4）如果要让尽可能多的箱子装上轮船，这里最多装上3个，有很多组合方案都可以达到3个，
 但4个全上船去办不到。
-有个问题，当实现（1）和（2）目标的前一个目的时，比如尽可能装满第一艘船，若这种“尽可能满”
-有多种组合，都是“最满”，到底用哪个？因为这个选择会影响到后一个目的，我们为了评判的唯一性，
+有个问题，当实现（1）和（2）目标的前一个目的时，比如尽可能装满第一艘船，若这种"尽可能满"
+有多种组合，都是"最满"，到底用哪个？因为这个选择会影响到后一个目的，我们为了评判的唯一性，
 只考虑按深度优先得到的第一个组合，然后再将剩下箱子去做第二个目的的选择。
 比如：4 55 45，每个箱子重：10 40 20 30
 此时，对第（1）个目的的求解，先将第一艘船装满，这有两种选择，第一是10+40装上第一艘船，
-那20和30就留到装第二艘船去考虑，第二艘船就会选择30，输出为“50 30 3”。
+那20和30就留到装第二艘船去考虑，第二艘船就会选择30，输出为"50 30 3"。
 但如果选20+30上第一艘船（也同样是使第一艘船尽可能满了），但留下10和40到第二艘船去了，
-选40到第二艘船上，那样就输出“50 40 3”了。
+选40到第二艘船上，那样就输出"50 40 3"了。
 这里，若出现这样的多解而影响后续选择的，为简化问题并保持输出唯一，我们只输出前者，
 因为10+40是我们按深度优先找到的第一个最接近c1的解。
 

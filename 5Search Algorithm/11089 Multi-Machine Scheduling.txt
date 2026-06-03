@@ -1,9 +1,50 @@
 //11089 多机最佳调度（优先做）
 #include <iostream>
+#include <algorithm>
 using namespace std;
 
+int t[105], len[55], best = 1e9;
+int n, m;
+
+// 贪心：LPT
+int greedy() {
+    int machine[55] = {0};
+    sort(t, t + n, greater<int>());
+    for (int i = 0; i < n; i++) {
+        int mi = 0;
+        for (int j = 1; j < m; j++)
+            if (machine[j] < machine[mi]) mi = j;
+        machine[mi] += t[i];
+    }
+    return *max_element(machine, machine + m);
+}
+
+// 回溯搜索
+void dfs(int dep) {
+    if (dep == n) {
+        int cur = *max_element(len, len + m);
+        best = min(best, cur);
+        return;
+    }
+    for (int i = 0; i < m; i++) {
+        len[i] += t[dep];
+        if (len[i] < best) dfs(dep + 1);
+        len[i] -= t[dep];
+        if (len[i] == 0) break; // 对称剪枝
+    }
+}
+
 int main() {
-    // TODO: implement
+    cin >> n >> m;
+    for (int i = 0; i < n; i++) cin >> t[i];
+
+    cout << greedy() << '\n';
+
+    sort(t, t + n, greater<int>());
+    best = greedy(); // 贪心解作为初始上界
+    fill(len, len + m, 0);
+    dfs(0);
+    cout << best;
 
     return 0;
 }
@@ -31,7 +72,7 @@ Description
 2 14 4 16 6 5 3
 
 另一个输入示例：
-14 3 
+14 3
 10 10 10 10 10 7 7 7 7 7 5 5 5 5
 
 输出样例

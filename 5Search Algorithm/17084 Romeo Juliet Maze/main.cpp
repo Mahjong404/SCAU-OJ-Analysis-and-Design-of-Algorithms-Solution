@@ -1,10 +1,50 @@
 //17084 罗密欧与朱丽叶的迷宫问题
 #include <iostream>
+#include <cstring>
 using namespace std;
 
-int main() {
-    // TODO: implement
+int n, m, k, sr, sc, er, ec, total;
+int vis[8][8]; // 0=未访, -1=封闭, >0=访问步数
+int minTurns, cntPaths;
+// 8方向
+int dx[] = {-1,-1,-1,0,0,1,1,1};
+int dy[] = {-1,0,1,-1,1,-1,0,1};
 
+void dfs(int r, int c, int step, int turns, int lastDir) {
+    if (r == er && c == ec) {
+        if (step == total) {
+            if (turns < minTurns) { minTurns = turns; cntPaths = 1; }
+            else if (turns == minTurns) cntPaths++;
+        }
+        return;
+    }
+    for (int d = 0; d < 8; d++) {
+        int nr = r + dx[d], nc = c + dy[d];
+        if (nr < 1 || nr > n || nc < 1 || nc > m) continue;
+        if (vis[nr][nc] != 0) continue;
+        vis[nr][nc] = step + 1;
+        int newTurns = (step == 1) ? 0 : (d != lastDir) ? turns + 1 : turns;
+        dfs(nr, nc, step + 1, newTurns, d);
+        vis[nr][nc] = 0;
+    }
+}
+
+int main() {
+    cin >> n >> m >> k;
+    memset(vis, 0, sizeof(vis));
+    for (int i = 0; i < k; i++) {
+        int r, c; cin >> r >> c;
+        vis[r][c] = -1; // 封闭
+    }
+    cin >> sr >> sc >> er >> ec;
+
+    total = n * m - k; // 需要访问的房间总数
+    minTurns = 1e9; cntPaths = 0;
+    vis[sr][sc] = 1;
+    dfs(sr, sc, 1, 0, -1);
+
+    if (cntPaths == 0) cout << "No Solution!";
+    else cout << minTurns << '\n' << cntPaths;
     return 0;
 }
 
@@ -34,7 +74,7 @@ Description
 将计算出的罗密欧通向朱丽叶的最少转弯次数和有多少条不同的最少转弯道路输出。
 第1行是最少转弯次数。第2行是不同的最少转弯道路数。
 
-如果罗密欧无法通向朱丽叶则仅输出“No Solution!”（注意大小写和标点）一行即可。
+如果罗密欧无法通向朱丽叶则仅输出"No Solution!"（注意大小写和标点）一行即可。
 
 例如输入：
 3 4 2
@@ -42,8 +82,8 @@ Description
 3 4
 1 1
 2 2
-则，合法的最少转弯6次的路径，这样的路径共有7条。有同学有疑问：“怎么有7条这样的
-路径呢？”
+则，合法的最少转弯6次的路径，这样的路径共有7条。有同学有疑问："怎么有7条这样的
+路径呢？"
 现在把路径列在下面，但这个路径是不要求你输出的。
 第1条：(1 1)(2 1)(3 1)(3 2)(3 3)(2 3)(1 4)(2 4)(1 3)(2 2)
 第2条：(1 1)(2 1)(3 1)(3 2)(3 3)(2 4)(2 3)(1 4)(1 3)(2 2)
@@ -65,13 +105,13 @@ Description
 7
 
 提示
-1， 在迷宫周围(上面一行,下面一行,左边一列,右边一列)都加上"围墙"，围墙设“封闭”
+1， 在迷宫周围(上面一行,下面一行,左边一列,右边一列)都加上"围墙"，围墙设"封闭"
 的标志。
 
 2， 初始位置为罗密欧的位置，向周围未封闭的八个房间搜索，若该房间没有搜索过，
-则记录下“方向”，并进行进一步搜索。
-   这里，由于要记录转弯数，就要判断是否拐弯，所以须对每个位置来的“方向”做记录。
-   总体的搜索框架还是“深度优先”的，探察所有从罗密欧到朱丽叶的路径。
+则记录下"方向"，并进行进一步搜索。
+   这里，由于要记录转弯数，就要判断是否拐弯，所以须对每个位置来的"方向"做记录。
+   总体的搜索框架还是"深度优先"的，探察所有从罗密欧到朱丽叶的路径。
 
 3， 若走到朱丽叶房间，需要做的事情如下：
   1） 要判断房间是否都走过。

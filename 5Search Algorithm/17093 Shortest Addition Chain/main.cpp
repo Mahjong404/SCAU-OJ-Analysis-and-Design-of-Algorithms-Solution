@@ -2,9 +2,44 @@
 #include <iostream>
 using namespace std;
 
-int main() {
-    // TODO: implement
+int n, a[105], best[105], bestLen;
 
+// IDA*: step=当前深度, maxDepth=最大深度限制
+bool dfs(int step, int maxDepth) {
+    if (step > maxDepth) return a[step - 1] == n;
+    // 从大到小尝试（优先靠前的数大）
+    for (int i = step - 1; i >= 1; i--) {
+        for (int j = i; j >= 1; j--) {
+            int s = a[i] + a[j];
+            if (s <= a[step - 1] || s > n) continue;
+            // 剪枝：即使每次翻倍也到不了n
+            int maxReach = s;
+            for (int k = step + 1; k <= maxDepth; k++) maxReach <<= 1;
+            if (maxReach < n) continue;
+
+            a[step] = s;
+            if (dfs(step + 1, maxDepth)) return true;
+        }
+    }
+    return false;
+}
+
+int main() {
+    cin >> n;
+    a[1] = 1;
+
+    // 二分查找最短长度
+    for (int d = 1; d <= 100; d++) {
+        if (dfs(2, d + 1)) {
+            bestLen = d + 1;
+            for (int i = 1; i <= bestLen; i++) best[i] = a[i];
+            break;
+        }
+    }
+
+    cout << bestLen - 1 << '\n'; // 长度=元素个数-1（乘法次数）
+    for (int i = 1; i <= bestLen; i++)
+        cout << best[i] << (i < bestLen ? ' ' : '\0');
     return 0;
 }
 

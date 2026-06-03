@@ -1,10 +1,45 @@
 //17096 无向图最大割问题
 #include <iostream>
+#include <algorithm>
+#include <cstring>
 using namespace std;
 
-int main() {
-    // TODO: implement
+int n, m, g[105][105];
+int bestCut = -1, bestX[105], curX[105];
 
+void dfs(int i) {
+    if (i > n) {
+        // 计算割边数：U中顶点和V\U中顶点的边
+        int cut = 0;
+        for (int u = 1; u <= n; u++)
+            for (int v = u + 1; v <= n; v++)
+                if (g[u][v] && curX[u] != curX[v])
+                    cut++;
+        if (cut > bestCut) {
+            bestCut = cut;
+            for (int k = 1; k <= n; k++) bestX[k] = curX[k];
+        }
+        return;
+    }
+    // 选i入U（编号小的优先选）
+    curX[i] = 1;
+    dfs(i + 1);
+    // 不选i
+    curX[i] = 0;
+    dfs(i + 1);
+}
+
+int main() {
+    cin >> n >> m;
+    memset(g, 0, sizeof(g));
+    for (int i = 0; i < m; i++) {
+        int u, v; cin >> u >> v;
+        g[u][v] = g[v][u] = 1;
+    }
+    dfs(1);
+    cout << bestCut << '\n';
+    for (int i = 1; i <= n; i++)
+        cout << bestX[i] << (i < n ? ' ' : '\n');
     return 0;
 }
 
@@ -56,7 +91,7 @@ Description
 其实是很接近的，都可以采用相似的子集树深度优先搜索找到最优解，所不同的是找到符合叶结点的
 判断根据题意不同而不同。
 
-结果向量： 
+结果向量：
 （x1, x2, ..., xn）    xi=1表示顶点i在顶点集U中，否则xi=0表示顶点i不在顶点集U中。
 从x1=1开始深度搜索，到达叶结点时，也就已试探某一向量（x1, x2, ..., xn），计算顶点集U和
 非U的两个顶点集合之间的边数。并记录下符合顶点集合U的条件的割数量，搜索完即可返回最大割。

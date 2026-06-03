@@ -1,10 +1,40 @@
 //17081 宝石排列问题
 #include <iostream>
+#include <cstring>
 using namespace std;
 
-int main() {
-    // TODO: implement
+int n, ans;
+bool rowShape[6][6], colShape[6][6];
+bool rowColor[6][6], colColor[6][6];
+bool gemUsed[6][6]; // gemUsed[s][c]: 形状s颜色c的宝石是否已用
 
+void dfs(int r, int c) {
+    if (r == n) { ans++; return; }
+    int nr = (c == n - 1) ? r + 1 : r;
+    int nc = (c == n - 1) ? 0 : c + 1;
+    for (int s = 0; s < n; s++)
+        if (!rowShape[r][s] && !colShape[c][s])
+            for (int cl = 0; cl < n; cl++)
+                if (!rowColor[r][cl] && !colColor[c][cl] && !gemUsed[s][cl]) {
+                    rowShape[r][s] = colShape[c][s] = true;
+                    rowColor[r][cl] = colColor[c][cl] = true;
+                    gemUsed[s][cl] = true;
+                    dfs(nr, nc);
+                    rowShape[r][s] = colShape[c][s] = false;
+                    rowColor[r][cl] = colColor[c][cl] = false;
+                    gemUsed[s][cl] = false;
+                }
+}
+
+int main() {
+    cin >> n;
+    memset(rowShape, 0, sizeof(rowShape));
+    memset(colShape, 0, sizeof(colShape));
+    memset(rowColor, 0, sizeof(rowColor));
+    memset(colColor, 0, sizeof(colColor));
+    ans = 0;
+    dfs(0, 0);
+    cout << ans;
     return 0;
 }
 

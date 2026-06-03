@@ -1,10 +1,48 @@
 //17090 名画陈列馆
 #include <iostream>
+#include <algorithm>
 using namespace std;
 
-int main() {
-    // TODO: implement
+int m, n, best;
+int grid[22][22]; // 0=未覆盖, 1=已覆盖, 2=有警卫
 
+void cover(int r, int c, int v) {
+    grid[r][c] += v;
+    if (r > 0) grid[r-1][c] += v;
+    if (r < m-1) grid[r+1][c] += v;
+    if (c > 0) grid[r][c-1] += v;
+    if (c < n-1) grid[r][c+1] += v;
+}
+
+void dfs(int pos, int cnt) {
+    if (cnt >= best) return;
+    if (pos == m * n) {
+        // 检查全覆盖
+        for (int i = 0; i < m; i++)
+            for (int j = 0; j < n; j++)
+                if (grid[i][j] <= 0) return;
+        best = cnt;
+        return;
+    }
+    int r = pos / n, c = pos % n;
+    dfs(pos + 1, cnt);      // 不放
+    if (grid[r][c] <= 0) {   // 未被覆盖，必须放（或上方未覆盖则上方已无法覆盖）
+        cover(r, c, 1);
+        grid[r][c] += 3; // 额外标记有警卫
+        dfs(pos + 1, cnt + 1);
+        grid[r][c] -= 3;
+        cover(r, c, -1);
+    }
+}
+
+int main() {
+    cin >> m >> n;
+    best = m * n;
+    for (int i = 0; i < m; i++)
+        for (int j = 0; j < n; j++)
+            grid[i][j] = 0;
+    dfs(0, 0);
+    cout << best;
     return 0;
 }
 

@@ -1,10 +1,64 @@
 //17091 最大连续邮资问题
 #include <iostream>
+#include <algorithm>
+#include <cstring>
 using namespace std;
 
-int main() {
-    // TODO: implement
+int n, m, bestR, bestX[25];
+int x[25], y[5005]; // y[k]: 贴出邮资k的最少邮票数
 
+// 更新y数组并返回新的r
+int updateY(int idx) {
+    // 用新增的x[idx]更新y
+    for (int j = 0; j <= 5000; j++) {
+        if (y[j] >= m) continue;
+        // 贴x[idx]最多m-y[j]张
+        for (int k = 1; k + y[j] <= m; k++) {
+            int val = j + k * x[idx];
+            if (val > 5000) break;
+            if (y[j] + k < y[val])
+                y[val] = y[j] + k;
+        }
+    }
+    int r = 0;
+    while (r + 1 <= 5000 && y[r + 1] <= m) r++;
+    return r;
+}
+
+void dfs(int idx, int r) {
+    if (idx > n) {
+        if (r > bestR) {
+            bestR = r;
+            for (int i = 1; i <= n; i++) bestX[i] = x[i];
+        }
+        return;
+    }
+    int oldY[5005];
+    memcpy(oldY, y, sizeof(y));
+    int oldR = r;
+
+    // x[idx]范围: [x[idx-1]+1, r+1]
+    for (int v = x[idx - 1] + 1; v <= r + 1; v++) {
+        x[idx] = v;
+        int newR = updateY(idx);
+        dfs(idx + 1, newR);
+        memcpy(y, oldY, sizeof(y));
+    }
+}
+
+int main() {
+    cin >> n >> m;
+    x[1] = 1;
+    // 初始化y
+    fill(y, y + 5005, 100);
+    y[0] = 0;
+    int r = updateY(1);
+
+    bestR = 0;
+    dfs(2, r);
+    cout << bestR << '\n';
+    for (int i = 1; i <= n; i++)
+        cout << bestX[i] << (i < n ? ' ' : '\0');
     return 0;
 }
 
@@ -41,8 +95,8 @@ Description
 *  当x[1:i-1]已试好，最大邮资区间为[1…r]，接下来我们要试探x[i]，x[i]可取值范围多少？
 *  因x面值为递增整数序列，因此x[i]≥x[i-1]+1，这一点好理解。
 *  那x[i]的上界在哪？其实x[i]≤r+1，为什么呢？
-因为如果x[i]比r+1更大的话，就会出现出现一个“断层”，因为无法由这i种凑出r+1这个面值
-（前i-1种只能凑出1…r，而第i种又是面值大于r+1，那r+1这面值就无法凑出了，这就是“断层”。）
+因为如果x[i]比r+1更大的话，就会出现出现一个"断层"，因为无法由这i种凑出r+1这个面值
+（前i-1种只能凑出1…r，而第i种又是面值大于r+1，那r+1这面值就无法凑出了，这就是"断层"。）
 *  因此综上分析：x[i-1]+1≤x[i]≤r+1
 *  既然x[i]上界和下界确定了，接下来要考虑：用这样的x[1…i]，又能凑出连续邮资为多少？
 即加入x[i]，连续区间的上界r要如何更新呢？

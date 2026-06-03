@@ -1,10 +1,33 @@
 //17080 拉丁矩阵问题
 #include <iostream>
+#include <cstring>
 using namespace std;
 
-int main() {
-    // TODO: implement
+int m, n, ans;
+int g[6][6]; // g[i][j] = 宝石类型(1-based)
+bool rowUsed[6][6], colUsed[6][6]; // [row/col][type]
 
+void dfs(int r, int c) {
+    if (r == m) { ans++; return; }
+    int nr = (c == n - 1) ? r + 1 : r;
+    int nc = (c == n - 1) ? 0 : c + 1;
+    for (int t = 1; t <= n; t++) {
+        if (!rowUsed[r][t] && !colUsed[c][t]) {
+            g[r][c] = t;
+            rowUsed[r][t] = colUsed[c][t] = true;
+            dfs(nr, nc);
+            rowUsed[r][t] = colUsed[c][t] = false;
+        }
+    }
+}
+
+int main() {
+    cin >> m >> n;
+    memset(rowUsed, 0, sizeof(rowUsed));
+    memset(colUsed, 0, sizeof(colUsed));
+    ans = 0;
+    dfs(0, 0);
+    cout << ans;
     return 0;
 }
 

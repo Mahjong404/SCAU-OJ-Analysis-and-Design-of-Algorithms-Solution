@@ -1,10 +1,41 @@
 //8604 运动员最佳配对问题
 #include <iostream>
+#include <algorithm>
 using namespace std;
 
-int main() {
-    // TODO: implement
+int n, P[12][12], Q[12][12], best = -1;
+int x[12];        // 当前女运动员排列
+bool used[12];
 
+void dfs(int i, int cur) {
+    if (i > n) { best = max(best, cur); return; }
+    // 上界剪枝：计算剩余最大可能
+    int bound = cur;
+    for (int k = i; k <= n; k++) {
+        int mx = 0;
+        for (int j = 1; j <= n; j++)
+            if (!used[j]) mx = max(mx, P[k][j] * Q[j][k]);
+        bound += mx;
+    }
+    if (bound <= best) return;
+
+    for (int j = 1; j <= n; j++) {
+        if (used[j]) continue;
+        used[j] = true;
+        x[i] = j;
+        dfs(i + 1, cur + P[i][j] * Q[j][i]);
+        used[j] = false;
+    }
+}
+
+int main() {
+    cin >> n;
+    for (int i = 1; i <= n; i++)
+        for (int j = 1; j <= n; j++) cin >> P[i][j];
+    for (int i = 1; i <= n; i++)
+        for (int j = 1; j <= n; j++) cin >> Q[i][j];
+    dfs(1, 0);
+    cout << best;
     return 0;
 }
 
@@ -51,7 +82,7 @@ Q=
 提示
 让男队员按自己编号顺序站定，女运动员和他们搭配的各种组合就是女运动员的各种排列。
 （如果你让女运动员按编号顺序站定，男运动员各种排列和她们搭配，也可以！）
-因此，搜索的解空间树是“排列树”。
-搜索的算法可以参考书本上“批处理作业调度问题”一节或“旅行售货员问题”的解法，因为都是排列树的搜索。
+因此，搜索的解空间树是"排列树"。
+搜索的算法可以参考书本上"批处理作业调度问题"一节或"旅行售货员问题"的解法，因为都是排列树的搜索。
 套用排列树回溯搜索的框架来写。
 */

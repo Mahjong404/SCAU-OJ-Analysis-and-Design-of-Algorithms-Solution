@@ -1,10 +1,65 @@
 //8599 埃及分数问题
 #include <iostream>
+#include <cstring>
 using namespace std;
+typedef long long ll;
+
+ll a, b;
+ll ans[105], tmp[105];
+int bestDepth;
+bool found;
+
+ll gcd(ll x, ll y) { return y ? gcd(y, x % y) : x; }
+
+// IDA*: 搜索第d个分数，共depth个
+void dfs(ll num, ll den, int d, int depth, ll lo) {
+    if (d == depth) {
+        if (num != 1) return;
+        tmp[d] = den;
+        // 比较是否更好
+        if (!found || den < ans[depth]) {
+            for (int i = 1; i <= depth; i++) ans[i] = tmp[i];
+            found = true;
+        }
+        return;
+    }
+    // 分母下界: max(lo, ceil(den/num))
+    ll lo2 = max(lo, den / num + 1);
+    // 分母上界: 剩余depth-d个单位分数，每个至少1/lo2，总和不超过num/den
+    // (depth-d+1) / hi <= num/den → hi <= (depth-d+1)*den/num 太复杂
+    // 简化：hi <= den * (depth - d + 1) / num
+    ll hi = den * (depth - d + 1) / num;
+    if (hi > 1000000) hi = 1000000;
+
+    for (ll k = lo2; k <= hi; k++) {
+        // 剪枝：如果选k作为分母，剩余分数最多能给多大贡献
+        // 剩余depth-d个分数，每个至少1/k，总和 (depth-d)/k < num/den - 1/k
+        if (num * k >= den * (depth - d + 1)) continue;
+
+        tmp[d] = k;
+        ll nnum = num * k - den;
+        ll nden = den * k;
+        ll g = gcd(nnum, nden);
+        dfs(nnum / g, nden / g, d + 1, depth, k + 1);
+    }
+}
 
 int main() {
-    // TODO: implement
+    cin >> a >> b;
+    ll g = gcd(a, b);
+    a /= g; b /= g;
 
+    if (a == 1) { cout << b; return 0; }
+
+    found = false;
+    for (int d = 2; d <= 100; d++) {
+        dfs(a, b, 1, d, 2);
+        if (found) {
+            for (int i = 1; i <= d; i++)
+                cout << ans[i] << (i < d ? ' ' : '\0');
+            break;
+        }
+    }
     return 0;
 }
 
@@ -27,7 +82,7 @@ Description
 
 我们选最好的是最后一种，因为1/18比1/180，1/45，1/30和1/180都大。
 
-你的编程任务：给定真分数，设计一个算法，找到用“最好埃及分数”表示真分数的表达式。
+你的编程任务：给定真分数，设计一个算法，找到用"最好埃及分数"表示真分数的表达式。
 
 输入格式
 仅一行，包括两个整数a和b，它们之间用空格分开，分别表示分数的分子和分母。
@@ -70,7 +125,7 @@ Description
 完，后退出整个搜索过程（这样保证加数个数最少），然后输出结果。
     但如果没有找到（指一个符合要求的都没有），就继续下一棵树的搜索。
 
-3， 为什么要将当前这棵树搜完呢？（不搜完也要能确定已找到“最好”的埃及分数，
+3， 为什么要将当前这棵树搜完呢？（不搜完也要能确定已找到"最好"的埃及分数，
 适当的剪枝倒是可以加快，但这里不详述，以搜完来讲解算法。）
     比如当前加数个数为n，同样有n个加数，可能有多组组合的可能，如，19/45的三
 个埃及分数相加：
@@ -79,13 +134,13 @@ Description
          19/45 = 1/3 +1/18 +1/30
          19/45 = 1/4 +1/6 +1/180
          19/45 = 1/5 +1/6 +1/18
-    其中这种：19/45 = 1/3 +1/12 +1/180会最先搜索到，但它并不是“最好”的埃及
+    其中这种：19/45 = 1/3 +1/12 +1/180会最先搜索到，但它并不是"最好"的埃及
 分数表示，还得继续搜，直至把三个加数的三层多叉树搜完为止。搜完了，才知道这些
 都满足埃及分数的表达中，最后一个分式的分母哪个是最小的，才能输出它。
 
 
 ---------------------------------------
-现在分析前述本题难度的第一点： 搜索过程中，由隐约束条件来计算每个当前分数分母
+现在分析前述本题难点的第一点： 搜索过程中，由隐约束条件来计算每个当前分数分母
 的上下界（尤其是上界，分母可以大到多少？）：
 
 先定义符号：

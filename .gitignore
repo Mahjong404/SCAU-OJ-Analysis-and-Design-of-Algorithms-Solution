@@ -43,3 +43,10 @@
 /PPT
 /.idea
 /.github
+
+# OJ scraping intermediate artifacts
+/descriptions/
+
+# OS files
+Thumbs.db
+.DS_Store

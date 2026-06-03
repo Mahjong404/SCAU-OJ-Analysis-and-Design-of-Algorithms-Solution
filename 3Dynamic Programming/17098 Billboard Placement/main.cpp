@@ -1,10 +1,28 @@
 //17098 广告牌最佳安放问题
 #include <iostream>
+#include <algorithm>
 using namespace std;
 
-int main() {
-    // TODO: implement
+int x[100005], r[100005], dp[100005];
 
+int main() {
+    ios::sync_with_stdio(false); cin.tie(0);
+    int M, n;
+    cin >> M >> n;
+    for (int i = 1; i <= n; i++) cin >> x[i];
+    for (int i = 1; i <= n; i++) cin >> r[i];
+
+    // dp[i]: 考虑前i个广告牌位置的最大收益
+    dp[0] = 0;
+    int best = 0;
+    for (int i = 1; i <= n; i++) {
+        // 找最右边满足距离>5的位置j
+        int j = i - 1;
+        while (j >= 1 && x[i] - x[j] <= 5) j--;
+        dp[i] = max(dp[i - 1], (j >= 1 ? dp[j] : 0) + r[i]);
+        best = max(best, dp[i]);
+    }
+    cout << best;
     return 0;
 }
 

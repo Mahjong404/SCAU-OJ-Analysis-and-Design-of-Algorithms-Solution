@@ -1,10 +1,19 @@
 //18708 最大子段和
 #include <iostream>
+#include <algorithm>
+#include <cstdio>
 using namespace std;
 
 int main() {
-    // TODO: implement
-
+    int n, x;
+    scanf("%d", &n);
+    long long cur = 0, best = -1e18;
+    for (int i = 0; i < n; i++) {
+        scanf("%d", &x);
+        cur = max((long long)x, cur + x);
+        best = max(best, cur);
+    }
+    printf("%lld", best);
     return 0;
 }
 

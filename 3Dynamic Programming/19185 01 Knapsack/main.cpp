@@ -1,10 +1,19 @@
 //19185 01背包问题
 #include <iostream>
+#include <algorithm>
 using namespace std;
 
-int main() {
-    // TODO: implement
+int dp[205];
 
+int main() {
+    int M, n, w, c;
+    cin >> M >> n;
+    for (int i = 0; i < n; i++) {
+        cin >> w >> c;
+        for (int j = M; j >= w; j--)
+            dp[j] = max(dp[j], dp[j - w] + c);
+    }
+    cout << dp[M];
     return 0;
 }
 

@@ -1,10 +1,22 @@
 //8596 最长上升子序列（优先做）
 #include <iostream>
+#include <algorithm>
+#include <vector>
 using namespace std;
 
 int main() {
-    // TODO: implement
-
+    ios::sync_with_stdio(false); cin.tie(0);
+    int n;
+    while (cin >> n && n) {
+        vector<int> tails; // tails[i] = 长度为i+1的LIS的最小末尾
+        for (int i = 0; i < n; i++) {
+            int x; cin >> x;
+            auto it = lower_bound(tails.begin(), tails.end(), x);
+            if (it == tails.end()) tails.push_back(x);
+            else *it = x;
+        }
+        cout << tails.size() << '\n';
+    }
     return 0;
 }
 
@@ -17,7 +29,7 @@ Description
 也就是说，子序列是原序列允许挑选若干不连续的元素形成的序列。
 
 举个例子，序列 (1, 7, 3, 5, 9, 4, 8) 就有许多个上上子序列，比如(1, 7), (3, 4, 8) 等。
-所有这些上升子序列中最长的长度为4，比如 (1, 3, 5, 8). 
+所有这些上升子序列中最长的长度为4，比如 (1, 3, 5, 8).
 
 你来编程实现，当给定一个初始序列，寻找这个序列的最长上升子序列。
 
@@ -65,7 +77,7 @@ Description
 二，算法的动态规划思想
 
 考虑采用动态规划算法，针对每个元素，以该元素结尾的最长有序子序列作为子问题，
-计算出每个子问题的最大长度用“表”记录下来。先写出递推关系式再编程实现。
+计算出每个子问题的最大长度用"表"记录下来。先写出递推关系式再编程实现。
 
 设f(i)表示：从左向右扫描过来直到以a[i]元素结尾的序列，可获得的最长上升
 子序列的长度，且最长上升子序列包含a[i]元素（1<=i<=n）。

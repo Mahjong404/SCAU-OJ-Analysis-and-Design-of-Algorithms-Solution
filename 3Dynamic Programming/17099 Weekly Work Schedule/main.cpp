@@ -1,10 +1,22 @@
 //17099 周工作计划安排
 #include <iostream>
+#include <algorithm>
 using namespace std;
 
-int main() {
-    // TODO: implement
+int l[10005], h[10005], dp[10005];
 
+int main() {
+    int n;
+    cin >> n;
+    for (int i = 1; i <= n; i++) cin >> l[i];
+    for (int i = 1; i <= n; i++) cin >> h[i];
+
+    dp[0] = 0;
+    dp[1] = l[1];
+    for (int i = 2; i <= n; i++)
+        dp[i] = max(dp[i - 1] + l[i], dp[i - 2] + h[i]);
+
+    cout << dp[n];
     return 0;
 }
 

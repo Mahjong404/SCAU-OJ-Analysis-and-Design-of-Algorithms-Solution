@@ -1,9 +1,45 @@
 //10303 数字三角（优先做）
 #include <iostream>
+#include <algorithm>
 using namespace std;
 
+int a[105][105], dp[105][105], path[105];
+
 int main() {
-    // TODO: implement
+    int n;
+    cin >> n;
+    for (int i = 1; i <= n; i++)
+        for (int j = 1; j <= i; j++)
+            cin >> a[i][j];
+
+    // 自底向上DP
+    for (int j = 1; j <= n; j++) dp[n][j] = a[n][j];
+    for (int i = n - 1; i >= 1; i--)
+        for (int j = 1; j <= i; j++)
+            dp[i][j] = max(dp[i + 1][j], dp[i + 1][j + 1]) + a[i][j];
+
+    cout << dp[1][1] << '\n';
+
+    // 回溯路径：靠右优先，即相等时走右下方
+    int j = 1;
+    for (int i = 1; i <= n; i++) {
+        path[i] = a[i][j];
+        if (i < n && dp[i + 1][j] < dp[i + 1][j + 1])
+            j++; // 右边更大，走右下
+          // dp[i+1][j] >= dp[i+1][j+1] 时保持j不变（靠左/相等靠左）
+          // 但题目要求"靠右"，所以相等时也走右下！
+    }
+
+    // 重来：相等时走右下
+    j = 1;
+    for (int i = 1; i <= n; i++) {
+        path[i] = a[i][j];
+        if (i < n && dp[i + 1][j] <= dp[i + 1][j + 1])
+            j++;
+    }
+
+    for (int i = 1; i <= n; i++)
+        cout << path[i] << (i < n ? ' ' : '\0');
 
     return 0;
 }
@@ -30,7 +66,7 @@ Description
 
 
 如：
-Input: 
+Input:
 5
 7
 3 8
@@ -38,7 +74,7 @@ Input:
 2 7 4 4
 4 5 2 4 5
 有两条路径：7-3-8-7-5和7-8-6-4-5都为30，由于后者靠右，因此仅输出后者。
-Output: 
+Output:
 30
 7 8 6 4 5
 

@@ -1,10 +1,30 @@
 //19182 石子合并（基础版）
 #include <iostream>
+#include <algorithm>
 using namespace std;
 
-int main() {
-    // TODO: implement
+int a[305], sum[305];
+int dp[305][305]; // dp[i][j]: 合并a[i..j]的最小代价
 
+int main() {
+    int n;
+    cin >> n;
+    for (int i = 1; i <= n; i++) {
+        cin >> a[i];
+        sum[i] = sum[i - 1] + a[i];
+    }
+
+    // 区间DP: 按长度递增
+    for (int len = 2; len <= n; len++)
+        for (int i = 1; i + len - 1 <= n; i++) {
+            int j = i + len - 1;
+            dp[i][j] = 1e9;
+            for (int k = i; k < j; k++)
+                dp[i][j] = min(dp[i][j],
+                    dp[i][k] + dp[k + 1][j] + sum[j] - sum[i - 1]);
+        }
+
+    cout << dp[1][n];
     return 0;
 }
 
@@ -29,5 +49,5 @@ Description
 22
 
 提示
-区间动态规划。题解可参考  11078	不能移动的石子合并（优先做）
+区间动态规划。题解可参考  11078  不能移动的石子合并（优先做）
 */

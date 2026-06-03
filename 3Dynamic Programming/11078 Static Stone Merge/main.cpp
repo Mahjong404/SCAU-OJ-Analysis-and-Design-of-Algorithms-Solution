@@ -1,9 +1,70 @@
 //11078 不能移动的石子合并（优先做）
 #include <iostream>
+#include <algorithm>
 using namespace std;
 
+int a[205], sum[205];
+int dpMin[205][205], dpMax[205][205];
+
 int main() {
-    // TODO: implement
+    int n;
+    cin >> n;
+    for (int i = 1; i <= n; i++) {
+        cin >> a[i];
+        a[i + n] = a[i]; // 扩展为2n用于环形
+    }
+
+    // 前缀和（1..2n）
+    int N = 2 * n;
+    for (int i = 1; i <= N; i++)
+        sum[i] = sum[i - 1] + a[i];
+
+    // 初始化
+    for (int i = 1; i <= N; i++)
+        for (int j = 1; j <= N; j++)
+            dpMin[i][j] = (i == j) ? 0 : 1e9;
+    for (int i = 1; i <= N; i++)
+        for (int j = 1; j <= N; j++)
+            dpMax[i][j] = 0;
+
+    // ===== 模型1: 一行排列 =====
+    for (int len = 2; len <= n; len++)
+        for (int i = 1; i + len - 1 <= n; i++) {
+            int j = i + len - 1;
+            for (int k = i; k < j; k++) {
+                int cost = sum[j] - sum[i - 1];
+                dpMin[i][j] = min(dpMin[i][j], dpMin[i][k] + dpMin[k + 1][j] + cost);
+                dpMax[i][j] = max(dpMax[i][j], dpMax[i][k] + dpMax[k + 1][j] + cost);
+            }
+        }
+
+    cout << dpMin[1][n] << ' ' << dpMax[1][n] << '\n';
+
+    // ===== 模型2: 环形排列（用扩展数组）=====
+    // 重置dp（仅需要重置环形相关的）
+    for (int i = 1; i <= N; i++)
+        for (int j = 1; j <= N; j++)
+            dpMin[i][j] = (i == j) ? 0 : 1e9;
+    for (int i = 1; i <= N; i++)
+        for (int j = 1; j <= N; j++)
+            dpMax[i][j] = 0;
+
+    for (int len = 2; len <= n; len++)
+        for (int i = 1; i + len - 1 <= N; i++) {
+            int j = i + len - 1;
+            for (int k = i; k < j; k++) {
+                int cost = sum[j] - sum[i - 1];
+                dpMin[i][j] = min(dpMin[i][j], dpMin[i][k] + dpMin[k + 1][j] + cost);
+                dpMax[i][j] = max(dpMax[i][j], dpMax[i][k] + dpMax[k + 1][j] + cost);
+            }
+        }
+
+    int minCirc = 1e9, maxCirc = 0;
+    for (int i = 1; i <= n; i++) {
+        minCirc = min(minCirc, dpMin[i][i + n - 1]);
+        maxCirc = max(maxCirc, dpMax[i][i + n - 1]);
+    }
+    cout << minCirc << ' ' << maxCirc;
 
     return 0;
 }
@@ -72,7 +133,7 @@ Description
 （1）第一个石子合并模型
 
 和书上3.1节的矩阵连乘问题类似。假设m[i,j]为合并石子ai…aj，1<=i<=j<=n。所得到的最小
-得分，若没有“合并”这个动作，则为0。
+得分，若没有"合并"这个动作，则为0。
 原问题所求的合并最小值即为m[1,n]。
 
 递推公式如下，其中min表示求最小，sum表示求和。
@@ -116,14 +177,14 @@ Ai  ...  A[(i+s-1)%n]    A[(i+s)%n]  ...  A[(i+r-1)%n]
 
 例如： n=5，  A1 A2 A3 A4 A5 构成环型。
 计算：
-r=1, m[i,1] （1<=i<=n）， 即：m[1,1], m[2,1], m[3,1], m[4,1], m[5,1]。 
+r=1, m[i,1] （1<=i<=n）， 即：m[1,1], m[2,1], m[3,1], m[4,1], m[5,1]。
 对应的矩阵链为：A1, A2, A3, A4, A5；
-r=2, m[i,2] （1<=i<=n）， 即：m[1,2], m[2,2], m[3,2], m[4,2], m[5,2]。 
+r=2, m[i,2] （1<=i<=n）， 即：m[1,2], m[2,2], m[3,2], m[4,2], m[5,2]。
 对应的矩阵链为：A1A2, A2A3, A3A4, A4A5, A5A1；
-r=3, m[i,3] （1<=i<=n）， 即：m[1,3], m[2,3], m[3,3], m[4,3], m[5,3]。 
+r=3, m[i,3] （1<=i<=n）， 即：m[1,3], m[2,3], m[3,3], m[4,3], m[5,3]。
 对应的矩阵链为：A1A2A3, A2A3A4, A3A4A5, A4A5A1, A5A1A2；
 ......
-r=n, m[i,n] （1<=i<=n）， 即：m[1,n], m[2,n], m[3,n], m[4,n], m[5,n]。 
+r=n, m[i,n] （1<=i<=n）， 即：m[1,n], m[2,n], m[3,n], m[4,n], m[5,n]。
 对应的矩阵链为：A1A2...An, A2A3...A1, A3A4...A2, A4A5...A3, A5A1...A4；
 
 对m二维数组一列一列填充，原问题所求环型的最小得分为最后填充的一列m元素：

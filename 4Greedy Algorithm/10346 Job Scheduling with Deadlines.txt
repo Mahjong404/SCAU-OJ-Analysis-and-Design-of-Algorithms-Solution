@@ -1,10 +1,29 @@
 //10346 带价值的作业安排问题
 #include <iostream>
+#include <algorithm>
 using namespace std;
 
-int main() {
-    // TODO: implement
+struct Job { int d, p; };
+Job j[10005];
+bool used[10005];
 
+int main() {
+    int n;
+    cin >> n;
+    for (int i = 1; i <= n; i++) cin >> j[i].d;
+    for (int i = 1; i <= n; i++) cin >> j[i].p;
+
+    // 按收益降序，相同时间点只保留最高收益的
+    sort(j + 1, j + n + 1, [](Job& a, Job& b) { return a.p > b.p; });
+
+    int total = 0;
+    for (int i = 1; i <= n; i++) {
+        if (!used[j[i].d]) {  // 该时间点未被占用
+            used[j[i].d] = true;
+            total += j[i].p;
+        }
+    }
+    cout << total;
     return 0;
 }
 
@@ -46,7 +65,7 @@ E的子集称为相容的，如果它们可以被安排由一台机器完成。
 贪心法
 1）按价值从高到低排序所有作业；
 2）纳入作业1；
-3）从作业2到作业n，逐个检测是否和已经纳入的作业相容，相容则添入“相容作业集合”中。
+3）从作业2到作业n，逐个检测是否和已经纳入的作业相容，相容则添入"相容作业集合"中。
 此处，相容的判断不同于书上的活动安排问题，因为每个作业仅需一个单位时间就可完成，
 所以每当判断一个新的作业是否可以加入进已有的相容作业集合，就看这个新的作业是否
 能在其执行时间内被安排。

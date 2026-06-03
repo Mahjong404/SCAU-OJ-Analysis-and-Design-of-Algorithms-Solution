@@ -1,10 +1,23 @@
 //17103 基站建设（优先做）
 #include <iostream>
+#include <algorithm>
 using namespace std;
 
-int main() {
-    // TODO: implement
+int h[100005];
 
+int main() {
+    int n;
+    cin >> n;
+    for (int i = 0; i < n; i++) cin >> h[i];
+    sort(h, h + n);
+
+    int ans = 0, i = 0;
+    while (i < n) {
+        ans++;
+        int pos = h[i] + 4; // 基站放在当前未覆盖房子东4km
+        while (i < n && h[i] <= pos + 4) i++; // 跳过所有被覆盖的房子
+    }
+    cout << ans;
     return 0;
 }
 

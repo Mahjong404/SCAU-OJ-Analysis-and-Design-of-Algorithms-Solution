@@ -1,9 +1,68 @@
 //8598 整除15 问题
 #include <iostream>
+#include <string>
+#include <algorithm>
 using namespace std;
 
+int cnt[10];
+
 int main() {
-    // TODO: implement
+    string s;
+    cin >> s;
+    for (char c : s) cnt[c - '0']++;
+
+    // 必须含0或5才能被5整除
+    if (cnt[0] == 0 && cnt[5] == 0) { cout << "impossible"; return 0; }
+
+    int sum = 0;
+    for (int i = 0; i < 10; i++) sum += i * cnt[i];
+    int rem = sum % 3;
+
+    // 删除最少最小数字使sum%3==0
+    if (rem == 1) {
+        // 优先删一个余1的最小数(1,4,7)
+        if (cnt[1]) cnt[1]--;
+        else if (cnt[4]) cnt[4]--;
+        else if (cnt[7]) cnt[7]--;
+        // 否则删两个余2的最小数(2,5,8)
+        else {
+            for (int i = 0; i < 2; i++) {
+                if (cnt[2]) cnt[2]--;
+                else if (cnt[5]) cnt[5]--;
+                else if (cnt[8]) cnt[8]--;
+            }
+        }
+    } else if (rem == 2) {
+        if (cnt[2]) cnt[2]--;
+        else if (cnt[5]) cnt[5]--;
+        else if (cnt[8]) cnt[8]--;
+        else {
+            for (int i = 0; i < 2; i++) {
+                if (cnt[1]) cnt[1]--;
+                else if (cnt[4]) cnt[4]--;
+                else if (cnt[7]) cnt[7]--;
+            }
+        }
+    }
+
+    // 检查是否还有数字且满足整除5条件
+    bool has = false;
+    for (int i = 1; i < 10; i++) if (cnt[i] > 0) has = true;
+    if (cnt[0] > 0) has = true;
+    if (!has) { cout << "impossible"; return 0; }
+
+    // 确定个位：有0则放0，否则放5
+    if (cnt[0] > 0) {
+        cnt[0]--;
+        for (int i = 9; i >= 0; i--)
+            while (cnt[i]--) cout << i;
+        cout << '0';
+    } else {
+        cnt[5]--;
+        for (int i = 9; i >= 0; i--)
+            while (cnt[i]--) cout << i;
+        cout << '5';
+    }
 
     return 0;
 }
@@ -22,7 +81,7 @@ Description
 输出格式
 将构建出的最大整数输出。
 如果无法构建出能够整除15的整数，请输出
-“impossible”
+"impossible"
 
 输入样例
 02041

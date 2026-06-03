@@ -1,10 +1,28 @@
 //17964 水桶打水
 #include <iostream>
+#include <algorithm>
+#include <queue>
 using namespace std;
 
-int main() {
-    // TODO: implement
+int t[100005];
 
+int main() {
+    int n, r;
+    cin >> n >> r;
+    for (int i = 0; i < n; i++) cin >> t[i];
+    sort(t, t + n);
+
+    // 小顶堆：每个水龙头当前完成时间
+    priority_queue<long long, vector<long long>, greater<long long>> pq;
+    for (int i = 0; i < r; i++) pq.push(0);
+
+    long long total = 0;
+    for (int i = 0; i < n; i++) {
+        long long finish = pq.top() + t[i]; pq.pop();
+        total += finish;
+        pq.push(finish);
+    }
+    cout << total;
     return 0;
 }
 

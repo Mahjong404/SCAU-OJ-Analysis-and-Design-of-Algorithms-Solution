@@ -3,8 +3,44 @@
 using namespace std;
 
 int main() {
-    // TODO: implement
+    int n;
+    cin >> n;
 
+    // (1) 互不相同自然数之和的最大乘积
+    long long p1;
+    if (n == 1 || n == 2) p1 = n;
+    else if (n == 3) p1 = 2;
+    else if (n == 4) p1 = 3;
+    else {
+        // 从2开始连续自然数累加
+        int sum = 0, len = 0, a[20];
+        for (int i = 2; sum + i <= n; i++) {
+            a[len++] = i;
+            sum += i;
+        }
+        int rem = n - sum;
+        // 后项优先均匀分配剩余
+        for (int i = len - 1; rem > 0; i--) {
+            if (i < 0) i = len - 1;
+            a[i]++;
+            rem--;
+        }
+        p1 = 1;
+        for (int i = 0; i < len; i++) p1 *= a[i];
+    }
+
+    // (2) 若干自然数之和的最大乘积（可相同）
+    long long p2;
+    if (n <= 4) p2 = n;
+    else if (n % 3 == 0) {
+        p2 = 1; for (int i = 0; i < n / 3; i++) p2 *= 3;
+    } else if (n % 3 == 1) {
+        p2 = 4; for (int i = 0; i < (n - 4) / 3; i++) p2 *= 3;
+    } else {
+        p2 = 2; for (int i = 0; i < (n - 2) / 3; i++) p2 *= 3;
+    }
+
+    cout << p1 << ' ' << p2;
     return 0;
 }
 

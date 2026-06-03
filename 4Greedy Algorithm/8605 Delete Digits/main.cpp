@@ -1,10 +1,20 @@
 //8605 删数问题
 #include <iostream>
+#include <string>
 using namespace std;
 
 int main() {
-    // TODO: implement
-
+    string a; int k;
+    while (cin >> a && a != "0") {
+        cin >> k;
+        // 贪心删数：每次删除第一个大于右边数的数字
+        while (k--) {
+            int i = 0;
+            while (i < (int)a.size() - 1 && a[i] <= a[i + 1]) i++;
+            a.erase(i, 1);
+        }
+        cout << a << '\n';
+    }
     return 0;
 }
 

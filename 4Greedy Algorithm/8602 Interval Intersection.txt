@@ -1,10 +1,25 @@
 //8602 区间相交问题（优先做）
 #include <iostream>
+#include <algorithm>
 using namespace std;
 
-int main() {
-    // TODO: implement
+struct Seg { int l, r; };
+Seg s[55];
 
+int main() {
+    int n;
+    cin >> n;
+    for (int i = 0; i < n; i++) {
+        cin >> s[i].l >> s[i].r;
+        if (s[i].l > s[i].r) swap(s[i].l, s[i].r);
+    }
+    sort(s, s + n, [](Seg& a, Seg& b) { return a.r < b.r; });
+
+    int kept = 1, last = s[0].r;
+    for (int i = 1; i < n; i++)
+        if (s[i].l >= last) { kept++; last = s[i].r; }
+
+    cout << n - kept;
     return 0;
 }
 

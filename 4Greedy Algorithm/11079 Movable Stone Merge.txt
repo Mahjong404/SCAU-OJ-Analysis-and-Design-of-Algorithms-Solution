@@ -1,10 +1,47 @@
 //11079 可以移动的石子合并（优先做）
 #include <iostream>
+#include <algorithm>
+#include <queue>
 using namespace std;
 
-int main() {
-    // TODO: implement
+int stone[205];
 
+int main() {
+    int n, k;
+    cin >> n >> k;
+    for (int i = 1; i <= n; i++) cin >> stone[i];
+
+    // ===== 最大得分: 每次合并2堆最大的（Huffman树，与k无关）=====
+    priority_queue<int> maxQ;
+    for (int i = 1; i <= n; i++) maxQ.push(stone[i]);
+    int maxScore = 0;
+    while (maxQ.size() > 1) {
+        int a = maxQ.top(); maxQ.pop();
+        int b = maxQ.top(); maxQ.pop();
+        maxScore += a + b;
+        maxQ.push(a + b);
+    }
+
+    // ===== 最小得分: k路Huffman树 =====
+    // 补虚拟0堆使 n % (k-1) == 1
+    int m = n;
+    while (m % (k - 1) != 1) m++;
+
+    priority_queue<int, vector<int>, greater<int>> minQ;
+    for (int i = 1; i <= n; i++) minQ.push(stone[i]);
+    for (int i = n + 1; i <= m; i++) minQ.push(0);
+
+    int minScore = 0;
+    while (minQ.size() > 1) {
+        int sum = 0;
+        for (int i = 0; i < k; i++) {
+            sum += minQ.top(); minQ.pop();
+        }
+        minScore += sum;
+        minQ.push(sum);
+    }
+
+    cout << minScore << ' ' << maxScore;
     return 0;
 }
 

@@ -1,10 +1,36 @@
 //10349 数字滑雪
 #include <iostream>
+#include <algorithm>
 using namespace std;
 
-int main() {
-    // TODO: implement
+int h[105][105], dp[105][105];
+int R, C;
+int dx[] = {0, 0, 1, -1};
+int dy[] = {1, -1, 0, 0};
 
+int dfs(int x, int y) {
+    if (dp[x][y]) return dp[x][y];
+    dp[x][y] = 1;
+    for (int d = 0; d < 4; d++) {
+        int nx = x + dx[d], ny = y + dy[d];
+        if (nx >= 0 && nx < R && ny >= 0 && ny < C && h[nx][ny] < h[x][y])
+            dp[x][y] = max(dp[x][y], dfs(nx, ny) + 1);
+    }
+    return dp[x][y];
+}
+
+int main() {
+    cin >> R >> C;
+    for (int i = 0; i < R; i++)
+        for (int j = 0; j < C; j++)
+            cin >> h[i][j];
+
+    int ans = 0;
+    for (int i = 0; i < R; i++)
+        for (int j = 0; j < C; j++)
+            ans = max(ans, dfs(i, j));
+
+    cout << ans;
     return 0;
 }
 

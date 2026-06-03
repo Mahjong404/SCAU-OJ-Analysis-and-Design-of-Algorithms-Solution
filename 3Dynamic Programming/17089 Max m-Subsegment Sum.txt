@@ -1,16 +1,44 @@
 //17089 最大m子段和
 #include <iostream>
+#include <algorithm>
+#include <cstring>
 using namespace std;
 
-int main() {
-    // TODO: implement
+int a[10005];
+int b[10005]; // b[i]: 前i个元素选j-1段的最大和（上一轮）
+int c[10005]; // c[i]: 以第i个元素结尾的j段最大和
 
+int main() {
+    ios::sync_with_stdio(false); cin.tie(0);
+    int n, m;
+    cin >> n >> m;
+    for (int i = 1; i <= n; i++) cin >> a[i];
+
+    memset(b, 0, sizeof(b));
+    memset(c, 0, sizeof(c));
+
+    int ans = 0;
+    for (int j = 1; j <= m; j++) {
+        c[j - 1] = 0;
+        int maxEnd = -1e9;
+        for (int i = j; i <= n; i++) {
+            // c[i] = max(连续到前一个元素, 从b[i-1]新开一段) + a[i]
+            c[i] = max(c[i - 1], b[i - 1]) + a[i];
+            // 更新b[i-1]为考虑了当前段的最优值，供下一轮(j+1)使用
+            b[i - 1] = maxEnd;
+            maxEnd = max(maxEnd, c[i]);
+        }
+        b[n] = maxEnd;
+        ans = max(ans, maxEnd);
+    }
+
+    cout << max(ans, 0);
     return 0;
 }
 
 /*
 Description
-“最大m子段和”问题：给定由n个整数（可能为负）组成的序列a1、a2、a3、...、an，以及一个正整数m，
+"最大m子段和"问题：给定由n个整数（可能为负）组成的序列a1、a2、a3、...、an，以及一个正整数m，
 要求确定序列的m个不相交子段，使这m个子段的总和最大！
 m是子段的个数。当m个子段的每个子段和都是负值时，定义m子段和为0。
 

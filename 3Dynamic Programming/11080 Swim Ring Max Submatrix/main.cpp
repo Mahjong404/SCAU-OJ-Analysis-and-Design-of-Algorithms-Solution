@@ -1,10 +1,50 @@
 //11080 游泳圈的最大子矩阵和
 #include <iostream>
+#include <algorithm>
 using namespace std;
 
-int main() {
-    // TODO: implement
+int a[105][105];    // 扩展矩阵 (2m-1) x (2n-1)
 
+int main() {
+    int m, n;
+    cin >> m >> n;
+    for (int i = 0; i < m; i++)
+        for (int j = 0; j < n; j++)
+            cin >> a[i][j];
+
+    // 扩展为 (2m-1) x (2n-1)
+    for (int i = 0; i < m; i++)
+        for (int j = 0; j < n; j++)
+            a[i][j + n] = a[i][j];
+    for (int i = 0; i < m; i++)
+        for (int j = 0; j < 2 * n - 1; j++)
+            a[i + m][j] = a[i][j];
+
+    int M = 2 * m - 1, N = 2 * n - 1;
+    int ans = -1e9;
+
+    // 枚举起始行
+    for (int r1 = 0; r1 < m; r1++) {
+        int colSum[105] = {0};
+        // 枚举结束行（最多m行）
+        for (int r2 = r1; r2 < r1 + m; r2++) {
+            // 更新列和
+            for (int c = 0; c < N; c++)
+                colSum[c] += a[r2][c];
+
+            // 在colSum上求最大子段和（子段长不超过n）
+            // 环形最大子段和（长度限制n）
+            for (int c1 = 0; c1 < n; c1++) {
+                int cur = 0;
+                for (int c2 = c1; c2 < c1 + n; c2++) {
+                    cur = max(colSum[c2], cur + colSum[c2]);
+                    ans = max(ans, cur);
+                }
+            }
+        }
+    }
+
+    cout << ans;
     return 0;
 }
 

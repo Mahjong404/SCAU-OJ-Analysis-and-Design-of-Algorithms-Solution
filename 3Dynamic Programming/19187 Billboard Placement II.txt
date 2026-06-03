@@ -1,10 +1,40 @@
 //19187 广告牌最佳安放问题（二）
 #include <iostream>
+#include <algorithm>
 using namespace std;
 
-int main() {
-    // TODO: implement
+int x[1005], r[1005];
+int dp[1005][1005];   // dp[i][j]: 前i个位置选j个且第i个必选的最大收益
+int best[1005][1005]; // best[i][j]: 前i个位置选j个的最大收益（不一定选i）
 
+int main() {
+    ios::sync_with_stdio(false); cin.tie(0);
+    int T, n, m;
+    cin >> T >> n >> m;
+    for (int i = 1; i <= n; i++) cin >> x[i];
+    for (int i = 1; i <= n; i++) cin >> r[i];
+
+    // dp[i][1] = r[i]
+    for (int i = 1; i <= n; i++) {
+        dp[i][1] = r[i];
+        best[i][1] = max(best[i - 1][1], dp[i][1]);
+    }
+
+    for (int j = 2; j <= m; j++) {
+        int ptr = 0; // 最大满足 x[i] - x[ptr] > 5 的位置
+        for (int i = j; i <= n; i++) {
+            // 移动ptr到满足距离约束的最右位置
+            while (ptr + 1 < i && x[i] - x[ptr + 1] > 5)
+                ptr++;
+            if (ptr >= j - 1)
+                dp[i][j] = best[ptr][j - 1] + r[i];
+            else
+                dp[i][j] = -1e9;
+            best[i][j] = max(best[i - 1][j], dp[i][j]);
+        }
+    }
+
+    cout << best[n][m];
     return 0;
 }
 

@@ -1,9 +1,41 @@
 //8595 钱币组合的问题（优先做）
 #include <iostream>
+#include <algorithm>
 using namespace std;
 
+int v[55], k[55];
+int ways[20005];  // 1D滚动: 组成面值j的方法数
+int cnt[20005];   // 组成面值j的最少张数
+
 int main() {
-    // TODO: implement
+    int n, m;
+    cin >> n;
+    for (int i = 1; i <= n; i++) cin >> v[i];
+    for (int i = 1; i <= n; i++) cin >> k[i];
+    cin >> m;
+
+    // ===== (1) 不同构成方法数 =====
+    ways[0] = 1;
+    for (int i = 1; i <= n; i++)
+        for (int j = m; j >= 0; j--)
+            if (ways[j])
+                for (int p = 1; p <= k[i] && j + p * v[i] <= m; p++)
+                    ways[j + p * v[i]] += ways[j];
+
+    cout << ways[m] << '\n';
+
+    // ===== (2) 最少张数 =====
+    const int INF = 1e9;
+    fill(cnt, cnt + m + 1, INF);
+    cnt[0] = 0;
+    for (int i = 1; i <= n; i++)
+        for (int j = m; j >= 0; j--)
+            if (cnt[j] != INF)
+                for (int p = 1; p <= k[i] && j + p * v[i] <= m; p++)
+                    cnt[j + p * v[i]] = min(cnt[j + p * v[i]], cnt[j] + p);
+
+    if (cnt[m] == INF) cout << "no possible";
+    else cout << cnt[m];
 
     return 0;
 }
@@ -32,7 +64,7 @@ Description
 输出格式
 两行：
 第一行：计算出给定面值的不同的方法种数。若无法给出找钱方案，返回0数值。
-第二行：计算出给定面值所需的最少张数。若无法给出找钱方案，返回“no possible”(无大写，无标点)。
+第二行：计算出给定面值所需的最少张数。若无法给出找钱方案，返回"no possible"(无大写，无标点)。
 
 输入样例
 3
@@ -56,7 +88,8 @@ d[i,0] = 1,  if 1<=i<=n
 d[1,j] = 1,  if j%v[1]=0 && j/v[1]<=k[1];
 d[1,j] = 0,  if j%v[1]!=0 || j/v[1]>k[1] || j<0;
 
-if i>1 && j<v[i] d[i,j]="d[i-1,j]" if="" i="">1 && v[i]<=j<2*v[i]
+if i>1 && j<v[i] d[i,j]=d[i-1,j]
+if i>1 && v[i]<=j<2*v[i]
 d[i,j] = d[i-1,j] + d[i-1,j-v[i]]
 
 if i>1 && 2*v[i]<=j<3*v[i]
@@ -86,10 +119,9 @@ c[i][j] = min{ p+c[i-1][j-p*v[i]] | p from 0 to t }，这里p表示第i种币值
 初始条件：
 c[i][0]=0, 1<=i<=n
 c[1][j]=int(j/v[1]),   if j%v[1]==0 && j/v[1]<=k[1]
-c[1][j]=MAXINT,        if j%v[1]!=0 || j/v[1]>k[1] 
+c[1][j]=MAXINT,        if j%v[1]!=0 || j/v[1]>k[1]
       //此处MAXINT为自定义的无穷大的数，表示没法放。
 
 最后返回c[n][m]，若c[n][m]为MAXINT，则无法找到找钱的方案。
 
-</v[i]>
 */

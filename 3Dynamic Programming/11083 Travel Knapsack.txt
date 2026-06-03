@@ -1,10 +1,31 @@
 //11083 旅游背包（优先做）
 #include <iostream>
+#include <algorithm>
 using namespace std;
 
-int main() {
-    // TODO: implement
+int f[1005][505]; // f[x][y]: 体积不超过x，重量不超过y的最大价值
 
+int main() {
+    ios::sync_with_stdio(false); cin.tie(0);
+    int n, V, W;
+    cin >> n >> V >> W;
+
+    for (int i = 1; i <= n; i++) {
+        int vi, wi, ci, ti;
+        cin >> vi >> wi >> ci >> ti;
+
+        // 多重背包：对每种物品的ci件进行二进制拆分或直接三重循环
+        // 体积V<=1000，重量W<=500，n<=50，ci<=10
+        // 直接枚举件数
+        for (int x = V; x >= 0; x--)
+            for (int y = W; y >= 0; y--) {
+                int kmax = min(ci, min(x / vi, y / wi));
+                for (int k = 1; k <= kmax; k++)
+                    f[x][y] = max(f[x][y], f[x - k * vi][y - k * wi] + k * ti);
+            }
+    }
+
+    cout << f[V][W];
     return 0;
 }
 
@@ -12,7 +33,7 @@ int main() {
 Description
 想去旅游吗？那得先准备背包！
 
-背包用来装旅游物品，现在共n种(n<=50)旅游物品，每种物品都有体积vi，重量wi，数量ci，价值ti 
+背包用来装旅游物品，现在共n种(n<=50)旅游物品，每种物品都有体积vi，重量wi，数量ci，价值ti
 (vi,wi,ci和ti都为整数)。
 限制体积最多V立方厘米(V<=1000)，重量最多W公斤(W<=500)。
 

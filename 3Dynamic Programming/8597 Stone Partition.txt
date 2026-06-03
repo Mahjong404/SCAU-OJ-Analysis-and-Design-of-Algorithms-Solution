@@ -1,10 +1,34 @@
 //8597 石子划分问题
 #include <iostream>
+#include <algorithm>
 using namespace std;
 
-int main() {
-    // TODO: implement
+int a[1005], dp[1005][1005]; // dp[i][j]: 前i个石子分j份的最小费用
 
+int main() {
+    int n, m;
+    cin >> n >> m;
+    for (int i = 1; i <= n; i++) cin >> a[i];
+    sort(a + 1, a + n + 1);
+
+    // 初始化无穷大
+    for (int i = 0; i <= n; i++)
+        for (int j = 0; j <= m; j++)
+            dp[i][j] = 1e9;
+
+    dp[1][1] = 0;
+    // dp[i][1]: 前i个石子分1份 = (max-min)^2
+    for (int i = 1; i <= n; i++)
+        dp[i][1] = (a[i] - a[1]) * (a[i] - a[1]);
+
+    for (int i = 2; i <= n; i++)
+        for (int j = 2; j <= min(i, m); j++)
+            // 最后一堆从k+1到i，共i-k个
+            for (int k = j - 1; k < i; k++)
+                dp[i][j] = min(dp[i][j],
+                    dp[k][j - 1] + (a[i] - a[k + 1]) * (a[i] - a[k + 1]));
+
+    cout << dp[n][m];
     return 0;
 }
 

@@ -1,9 +1,39 @@
 //11077 最长公共子字符串（优先做）
 #include <iostream>
+#include <string>
 using namespace std;
 
+int dp[2][10005]; // 滚动数组: 以X[i]和Y[j]结尾的最长公共子串长度
+
 int main() {
-    // TODO: implement
+    string X, Y;
+    cin >> X >> Y;
+    int m = X.size(), n = Y.size();
+
+    int maxLen = 0, endX = 0;
+
+    // dp[i][j] 只依赖 dp[i-1][j-1]，用滚动数组
+    for (int i = 0; i < m; i++) {
+        int cur = i & 1, prev = cur ^ 1;
+        for (int j = 0; j < n; j++) {
+            if (X[i] == Y[j]) {
+                dp[cur][j] = (i > 0 && j > 0) ? dp[prev][j - 1] + 1 : 1;
+                // 更长的或等长但靠左(首次出现即靠左)
+                if (dp[cur][j] > maxLen) {
+                    maxLen = dp[cur][j];
+                    endX = i;
+                }
+            } else {
+                dp[cur][j] = 0;
+            }
+        }
+    }
+
+    cout << maxLen << '\n';
+    if (maxLen > 0)
+        cout << X.substr(endX - maxLen + 1, maxLen);
+    else
+        cout << '\n';
 
     return 0;
 }

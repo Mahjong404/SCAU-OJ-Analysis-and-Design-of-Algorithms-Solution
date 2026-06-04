@@ -1,10 +1,19 @@
-﻿//19184 传球游戏（第三章）
+//19184 传球游戏（第三章）
 #include <iostream>
 using namespace std;
 
-int main() {
-    // TODO
+int dp[35][35];
 
+int main() {
+    int n, m;
+    cin >> n >> m;
+
+    dp[0][0] = 1; // 0号同学（即1号），传0次
+    for (int t = 1; t <= m; t++)
+        for (int i = 0; i < n; i++)
+            dp[i][t] = dp[(i - 1 + n) % n][t - 1] + dp[(i + 1) % n][t - 1];
+
+    cout << dp[0][m];
     return 0;
 }
 

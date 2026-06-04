@@ -1,10 +1,38 @@
-﻿//19530 2的幂次方表示
+//19530 2的幂次方表示
 #include <iostream>
+#include <string>
 using namespace std;
 
-int main() {
-    // TODO
+// 返回k作为指数的表示（即2(k)中的k部分）
+// k=0 → 2(0), k=1 → 2, k>1 → 2(rep(k))
+string powRep(int k) {
+    if (k == 0) return "2(0)";
+    if (k == 1) return "2";
+    // 递归分解k
+    string inner;
+    bool first = true;
+    for (int j = 15; j >= 0; j--) {
+        if (k & (1 << j)) {
+            if (!first) inner += "+";
+            inner += powRep(j);
+            first = false;
+        }
+    }
+    return "2(" + inner + ")";
+}
 
+int main() {
+    int n; cin >> n;
+    string ans;
+    bool first = true;
+    for (int k = 15; k >= 0; k--) {
+        if (n & (1 << k)) {
+            if (!first) ans += "+";
+            ans += powRep(k);
+            first = false;
+        }
+    }
+    cout << ans;
     return 0;
 }
 

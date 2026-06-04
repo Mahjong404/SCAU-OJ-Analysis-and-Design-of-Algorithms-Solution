@@ -39,7 +39,7 @@ int main() {
 
     cout << bestLen - 1 << '\n'; // 长度=元素个数-1（乘法次数）
     for (int i = 1; i <= bestLen; i++)
-        cout << best[i] << (i < bestLen ? ' ' : '\0');
+        cout << best[i] << (i < bestLen ? ' ' : '\n');
     return 0;
 }
 

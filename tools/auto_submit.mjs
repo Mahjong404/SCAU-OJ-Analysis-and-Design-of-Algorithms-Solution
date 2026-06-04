@@ -168,8 +168,8 @@ async function main() {
   await close(tid);
 
   // Inter-submission cool-down (anti-rate-limit)
-  console.log('Cool-down 15s...');
-  await sleep(15000);
+  console.log('Cool-down 20s...');
+  await sleep(20000);
   console.log('Ready for next submission.');
 }
 

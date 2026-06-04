@@ -3,7 +3,7 @@
 #include <algorithm>
 using namespace std;
 
-int a[105][105], dp[105][105], path[105];
+int a[105][105], dp[105][105];
 
 int main() {
     int n;
@@ -20,26 +20,16 @@ int main() {
 
     cout << dp[1][1] << '\n';
 
-    // 回溯路径：靠右优先，即相等时走右下方
+    // 回溯路径：靠右优先（dp相等时走右下方）
     int j = 1;
     for (int i = 1; i <= n; i++) {
-        path[i] = a[i][j];
-        if (i < n && dp[i + 1][j] < dp[i + 1][j + 1])
-            j++; // 右边更大，走右下
-          // dp[i+1][j] >= dp[i+1][j+1] 时保持j不变（靠左/相等靠左）
-          // 但题目要求"靠右"，所以相等时也走右下！
+        cout << a[i][j];
+        if (i < n) {
+            cout << ' ';
+            if (dp[i + 1][j] <= dp[i + 1][j + 1])
+                j++;
+        }
     }
-
-    // 重来：相等时走右下
-    j = 1;
-    for (int i = 1; i <= n; i++) {
-        path[i] = a[i][j];
-        if (i < n && dp[i + 1][j] <= dp[i + 1][j + 1])
-            j++;
-    }
-
-    for (int i = 1; i <= n; i++)
-        cout << path[i] << (i < n ? ' ' : '\0');
 
     return 0;
 }

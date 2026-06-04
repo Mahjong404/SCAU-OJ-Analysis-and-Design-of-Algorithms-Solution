@@ -130,7 +130,7 @@ async function main() {
   // Find our submission entry: "提交编号 用户名 ... 题目编号 评判结果 ..."
   // Pattern: digits + ourUser + problemId + resultWord + ...
   const ourUser = '202425310617';
-  const re = new RegExp(`(\\d+)\\s+${ourUser}\\s+\\S+\\s+${problemId}\\s+(\\S+)`);
+  const re = new RegExp(`(\\d+)\\s+${ourUser}\\s+(?:\\S+\\s+)?${problemId}\\s+(\\S+)`);
   const match = result.match(re);
 
   if (match) {

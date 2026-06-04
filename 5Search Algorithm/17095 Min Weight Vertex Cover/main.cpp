@@ -1,4 +1,4 @@
-//17095 最小权顶点覆盖问题
+//17095 最小权顶点覆盖问题（实际为"最小支配集"问题（每个点要么在集合中，要么与集合中的点相邻））
 #include <iostream>
 #include <algorithm>
 #include <cstring>
@@ -9,11 +9,18 @@ int bestW = 1e9, bestX[105], curX[105];
 
 void dfs(int i, int sum) {
     if (i > n) {
-        // 检查每条边是否被覆盖
-        for (int u = 1; u <= n; u++)
-            for (int v = u + 1; v <= n; v++)
-                if (g[u][v] && !curX[u] && !curX[v])
-                    return;
+        // 按题目样例/提示：每个点要么选入集合，要么与已选点相邻
+        for (int u = 1; u <= n; u++) {
+            if (curX[u]) continue;
+            bool covered = false;
+            for (int v = 1; v <= n; v++) {
+                if (g[u][v] && curX[v]) {
+                    covered = true;
+                    break;
+                }
+            }
+            if (!covered) return;
+        }
         if (sum < bestW) {
             bestW = sum;
             for (int k = 1; k <= n; k++) bestX[k] = curX[k];
@@ -22,7 +29,7 @@ void dfs(int i, int sum) {
     }
     if (sum >= bestW) return;
 
-    // 选i（编号小的优先选）
+    // 选i
     curX[i] = 1;
     dfs(i + 1, sum + w[i]);
     // 不选i

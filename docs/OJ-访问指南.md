@@ -209,7 +209,55 @@ mainMenu.html
 | `tools/create_structure.mjs` | 从 HTML 描述文件生成题目文件夹/main.cpp/.txt |
 | `tools/fix_pre_and_images.mjs` | 重新获取 pre 块 innerHTML 修复缩进 + 下载图片 |
 | `tools/download_images.mjs` | 下载 OJ 题目中的图片（canvas→base64→PNG） |
-| `tools/parse_links.mjs` | 解析 CDP 返回的 JSON 链接数据 |
+| `tools/auto_submit.mjs` | 去注释 + 自动提交代码到 OJ |
+
+## 十一、自动提交代码
+
+`tools/auto_submit.mjs` 可自动化 OJ 提交流程：读取 `main.cpp` → 去注释 → 打开提交页 → 填入代码 → 点击提交 → 检测结果。
+
+```bash
+node tools/auto_submit.mjs <problemId> <path/to/main.cpp>
+node tools/auto_submit.mjs 11075 "1General Methods/11075 Dividing Coins/main.cpp"
+```
+
+### 去注释规则
+
+提交前自动移除以下注释，只保留纯代码：
+1. 首行 `//题号 中文题目名`
+2. 所有 `// ...` 行注释（保留注释前的代码）
+3. 末尾 `/* ... */` 块注释
+
+### 提交流程
+
+1. 打开 OJ 提交页 `common_solution_edit_PUBLIC.html?problemId={id}`
+2. 等待页面 JS 加载完毕
+3. 将去注释后的代码 base64 编码填入 `#areaSource` textarea
+4. 点击 `提交` 按钮
+5. 轮询等待页面跳转到结果页（不再含 "loading" / "跳转" 文字）
+6. 解析结果，输出 `PASS` / `FAIL`
+
+### 串行提交注意事项
+
+批量提交多个题目时必须遵守以下规则：
+
+| 规则 | 说明 |
+|------|------|
+| **串行逐个提交** | 同一时刻只提交一题，不要并行 |
+| **间隔 ≥ 8s** | 两次提交之间至少等待 8 秒。5s 过短会触发 "您的操作过于频繁，请等待 N 秒钟再操作" |
+| **500 错误重试** | OJ 偶尔返回 `500 Internal Server Error`（nginx），等 10-15s 后重试即可，提交其实可能已成功 |
+| **提交后等待跳转** | 点击提交后 OJ 显示 "loading.. 等待 3 秒, 自动跳转"，实际跳转可能需要 3-12s |
+
+### 提交结果检测
+
+脚本通过解析结果页文字来判断状态：
+
+| 检测到 | 判定 |
+|--------|------|
+| `通过` / `Accepted` / `AC` | ✅ PASS |
+| `答案错误` / `Wrong` / `WA` | ❌ Wrong Answer |
+| `编译` + `错` | ❌ Compile Error |
+| `操作过于频繁` | ⚠️ Rate Limited，需等待 |
+| `500 Internal Server Error` | ⚠️ 服务器错误，等 10-15s 重试 |
 
 ## 故障排查
 
@@ -223,3 +271,5 @@ mainMenu.html
 | eval 返回的数据无法 JSON.parse | 别用 JSON.stringify，改用 `join('|')` 分隔 |
 | 描述中代码无缩进 | 用了 innerText。改用 pre 块 innerHTML + HTML 实体解码 |
 | 图片下载失败 | 直连 curl 不行，必须通过 CDP 浏览器 Canvas 方案 |
+| `500 Internal Server Error` | OJ 服务器暂时出错，等 10-15s 重试；提交可能已成功，先查提交列表 |
+| `您的操作过于频繁，请等待 N 秒钟` | 提交间隔过短触发频率限制，等 N 秒再操作；批量提交建议间隔 ≥ 8s |

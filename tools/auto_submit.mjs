@@ -123,21 +123,54 @@ async function main() {
     console.log(`  still waiting... (${(i+1)*2}s)`);
   }
 
-  // Parse result
+  // Parse result — verify submission belongs to our user+problem
   result = (result || '').replace(/\s+/g, ' ').trim();
-  console.log('Result:', result.substring(0, 300));
+  console.log('Result:', result.substring(0, 400));
 
-  // Check pass/fail
-  if (result.includes('通过') || result.includes('Accepted') || result.includes('AC'))
-    console.log('>>> PASS <<<');
-  else if (result.includes('答案错误') || result.includes('Wrong') || result.includes('WA'))
-    console.log('>>> FAIL: Wrong Answer <<<');
-  else if (result.includes('编译') && result.includes('错'))
-    console.log('>>> FAIL: Compile Error <<<');
-  else
-    console.log('>>> Status unclear — check manually <<<');
+  // Find our submission entry: "提交编号 用户名 ... 题目编号 评判结果 ..."
+  // Pattern: digits + ourUser + problemId + resultWord + ...
+  const ourUser = '202425310617';
+  const re = new RegExp(`(\\d+)\\s+${ourUser}\\s+\\S+\\s+${problemId}\\s+(\\S+)`);
+  const match = result.match(re);
+
+  if (match) {
+    const [, sid, verdict] = match;
+    console.log(`  Solution #${sid}: ${verdict}`);
+    if (verdict === '通过' || verdict === 'Accepted') {
+      console.log('>>> PASS <<<');
+    } else if (verdict === '错误') {
+      // Check if there's an [出错提示] link for this submission
+      if (result.includes(`出错提示`)) {
+        console.log('>>> FAIL: Error with hint — check common_solution_viewTip_PUBLIC.html?solutionId=' + sid + ' <<<');
+      } else {
+        console.log('>>> FAIL: Wrong Answer <<<');
+      }
+    } else {
+      console.log('>>> FAIL: ' + verdict + ' <<<');
+    }
+  } else {
+    // Fallback: old detection logic
+    console.log('  (result detection fallback)');
+    if (result.includes('通过') || result.includes('Accepted') || result.includes('AC'))
+      console.log('>>> PASS <<<');
+    else if (result.includes('答案错误') || result.includes('Wrong') || result.includes('WA'))
+      console.log('>>> FAIL: Wrong Answer <<<');
+    else if (result.includes('编译') && result.includes('错'))
+      console.log('>>> FAIL: Compile Error <<<');
+    else if (result.includes('操作过于频繁'))
+      console.log('>>> RATE LIMITED <<<');
+    else if (result.includes('500') && result.includes('Internal Server Error'))
+      console.log('>>> OJ 500 Error — retry after 15s <<<');
+    else
+      console.log('>>> Status unclear — check manually <<<');
+  }
 
   await close(tid);
+
+  // Inter-submission cool-down (anti-rate-limit)
+  console.log('Cool-down 15s...');
+  await sleep(15000);
+  console.log('Ready for next submission.');
 }
 
 main().catch(e => { console.error(e); process.exit(1); });

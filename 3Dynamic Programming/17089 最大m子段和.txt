@@ -17,19 +17,17 @@ int main() {
     memset(b, 0, sizeof(b));
     memset(c, 0, sizeof(c));
 
-    int ans = 0;
+    int ans = -1e9;
     for (int j = 1; j <= m; j++) {
-        c[j - 1] = 0;
+        c[j - 1] = (j == 1) ? 0 : -1e9;
         int maxEnd = -1e9;
         for (int i = j; i <= n; i++) {
-            // c[i] = max(连续到前一个元素, 从b[i-1]新开一段) + a[i]
             c[i] = max(c[i - 1], b[i - 1]) + a[i];
-            // 更新b[i-1]为考虑了当前段的最优值，供下一轮(j+1)使用
             b[i - 1] = maxEnd;
             maxEnd = max(maxEnd, c[i]);
         }
         b[n] = maxEnd;
-        ans = max(ans, maxEnd);
+        ans = maxEnd;
     }
 
     cout << max(ans, 0);

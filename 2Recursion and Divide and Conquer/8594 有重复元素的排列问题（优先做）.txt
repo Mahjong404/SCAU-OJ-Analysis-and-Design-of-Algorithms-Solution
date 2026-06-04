@@ -1,7 +1,6 @@
 //8594 有重复元素的排列问题（优先做）
 #include <iostream>
 #include <algorithm>
-#include <cstring>
 using namespace std;
 
 char s[20];
@@ -33,7 +32,7 @@ void perm(int k) {
 
 int main() {
     cin >> n >> s;
-    sort(s, s + n); // 排序保证字典序输出
+    // 按课本例2-4原始顺序输出，不排序
     perm(0);
     cout << total;
     return 0;

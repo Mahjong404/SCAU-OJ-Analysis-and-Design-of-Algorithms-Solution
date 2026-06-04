@@ -21,22 +21,22 @@ int val(int start, int len) {
 
 void printProd(int i, int j) {
     if (j == 1) {
-        cout << S.substr(0, i);
+        cout << stoi(S.substr(0, i));
         return;
     }
     int k = fk[i][j];
     printProd(k, j - 1);
-    cout << '*' << S.substr(k, i - k);
+    cout << '*' << stoi(S.substr(k, i - k));
 }
 
 void printSum(int i, int j) {
     if (j == 1) {
-        cout << S.substr(0, i);
+        cout << stoi(S.substr(0, i));
         return;
     }
     int k = tk[i][j];
     printSum(k, j - 1);
-    cout << '+' << S.substr(k, i - k);
+    cout << '+' << stoi(S.substr(k, i - k));
 }
 
 int main() {
@@ -84,8 +84,8 @@ int main() {
 
     // 输出表达式
     if (m == 1) {
-        cout << S << '=' << S << '\n';
-        cout << S << '=' << S << '\n';
+        cout << stoi(S) << '=' << stoi(S) << '\n';
+        cout << stoi(S) << '=' << stoi(S) << '\n';
     } else {
         printProd(n, m);
         cout << '=' << f[n][m] << '\n';

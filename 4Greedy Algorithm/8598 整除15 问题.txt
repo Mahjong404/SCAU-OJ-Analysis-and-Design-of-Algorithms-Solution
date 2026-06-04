@@ -18,26 +18,32 @@ int main() {
     for (int i = 0; i < 10; i++) sum += i * cnt[i];
     int rem = sum % 3;
 
-    // 删除最少最小数字使sum%3==0
+    // 调整数字使sum%3==0
     if (rem == 1) {
-        // 优先删一个余1的最小数(1,4,7)
+        // 删一个余1的（1,4,7）
         if (cnt[1]) cnt[1]--;
         else if (cnt[4]) cnt[4]--;
         else if (cnt[7]) cnt[7]--;
-        // 否则删两个余2的最小数(2,5,8)
         else {
-            for (int i = 0; i < 2; i++) {
+            // 删两个余2的（2,5,8），若5是唯一末尾数则跳过5
+            bool only5 = (cnt[0] == 0 && cnt[5] == 1);
+            for (int t = 0; t < 2; t++) {
                 if (cnt[2]) cnt[2]--;
-                else if (cnt[5]) cnt[5]--;
+                else if (!only5 && cnt[5]) cnt[5]--;
                 else if (cnt[8]) cnt[8]--;
+                else if (cnt[5]) cnt[5]--;
             }
         }
     } else if (rem == 2) {
+        // 删一个余2的（2,5,8），若5是唯一末尾数则跳过5
+        bool only5 = (cnt[0] == 0 && cnt[5] == 1);
         if (cnt[2]) cnt[2]--;
-        else if (cnt[5]) cnt[5]--;
         else if (cnt[8]) cnt[8]--;
+        else if (cnt[5] && !only5) cnt[5]--;
+        else if (cnt[5]) cnt[5]--;
         else {
-            for (int i = 0; i < 2; i++) {
+            // 删两个余1的（1,4,7）
+            for (int t = 0; t < 2; t++) {
                 if (cnt[1]) cnt[1]--;
                 else if (cnt[4]) cnt[4]--;
                 else if (cnt[7]) cnt[7]--;
@@ -45,13 +51,20 @@ int main() {
         }
     }
 
-    // 检查是否还有数字且满足整除5条件
-    bool has = false;
-    for (int i = 1; i < 10; i++) if (cnt[i] > 0) has = true;
-    if (cnt[0] > 0) has = true;
-    if (!has) { cout << "impossible"; return 0; }
+    // 事后验证sum%3==0
+    sum = 0;
+    for (int i = 0; i < 10; i++) sum += i * cnt[i];
+    if (sum % 3 != 0) { cout << "impossible"; return 0; }
 
-    // 确定个位：有0则放0，否则放5
+    // 调整后检查还有无0或5
+    if (cnt[0] == 0 && cnt[5] == 0) { cout << "impossible"; return 0; }
+
+    // 全是0则输出"0"
+    bool hasNonZero = false;
+    for (int i = 1; i < 10; i++) if (cnt[i] > 0) hasNonZero = true;
+    if (!hasNonZero) { cout << '0'; return 0; }
+
+    // 确定个位：有0则用0，否则用5
     if (cnt[0] > 0) {
         cnt[0]--;
         for (int i = 9; i >= 0; i--)

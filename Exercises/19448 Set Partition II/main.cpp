@@ -1,10 +1,26 @@
-﻿//19448 集合划分问题二
+//19448 集合划分问题二
 #include <iostream>
 using namespace std;
 
-int main() {
-    // TODO
+long long S[25][25];
 
+int main() {
+    int n;
+    cin >> n;
+
+    for (int i = 1; i <= n; i++) {
+        S[i][1] = 1;
+        S[i][i] = 1;
+    }
+    for (int i = 2; i <= n; i++)
+        for (int j = 2; j < i; j++)
+            S[i][j] = S[i - 1][j - 1] + j * S[i - 1][j];
+
+    long long ans = 0;
+    for (int k = 1; k <= n; k++)
+        ans += S[n][k];
+
+    cout << ans;
     return 0;
 }
 

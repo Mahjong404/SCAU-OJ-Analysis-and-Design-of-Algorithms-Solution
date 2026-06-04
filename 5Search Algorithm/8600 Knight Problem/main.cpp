@@ -38,7 +38,7 @@ int main() {
         board[sr][sc] = 1; // 标记步数+1（0为未访问）
 
         while (!q.empty()) {
-            auto [r, c] = q.front(); q.pop();
+            int r = q.front().first, c = q.front().second; q.pop();
             if (r == er && c == ec) break;
             for (int d = 0; d < 8; d++) {
                 int nr = r + dx[d], nc = c + dy[d];

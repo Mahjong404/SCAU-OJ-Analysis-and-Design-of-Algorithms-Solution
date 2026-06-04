@@ -49,14 +49,14 @@ int main() {
     ll g = gcd(a, b);
     a /= g; b /= g;
 
-    if (a == 1) { cout << b; return 0; }
+    if (a == 1) { cout << b << '\n'; return 0; }
 
     found = false;
     for (int d = 2; d <= 100; d++) {
         dfs(a, b, 1, d, 2);
         if (found) {
             for (int i = 1; i <= d; i++)
-                cout << ans[i] << (i < d ? ' ' : '\0');
+                cout << ans[i] << (i < d ? ' ' : '\n');
             break;
         }
     }

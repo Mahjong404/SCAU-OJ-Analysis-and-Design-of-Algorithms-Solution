@@ -107,15 +107,37 @@ async function main() {
 
   // Click submit button
   await click(tid, 'input[type="submit"][name="submit"]');
-  console.log('Submit clicked. Waiting for result...');
-  await sleep(3000);
+  console.log('Submit clicked. Waiting for redirect...');
 
-  // Check result
-  const result = await evalJS(tid, 'document.body.innerText.substring(0,500)');
-  console.log('Result:', result);
+  // Wait for loading page + redirect (3s + buffer)
+  let result = '';
+  for (let i = 0; i < 6; i++) {
+    await sleep(2000);
+    const url = await evalJS(tid, 'location.href');
+    result = await evalJS(tid, 'document.body.innerText');
+    // Check if we've arrived at the result page (no longer "loading..")
+    if (result && !result.includes('loading') && !result.includes('跳转')) {
+      console.log('Result page reached.');
+      break;
+    }
+    console.log(`  still waiting... (${(i+1)*2}s)`);
+  }
+
+  // Parse result
+  result = (result || '').replace(/\s+/g, ' ').trim();
+  console.log('Result:', result.substring(0, 300));
+
+  // Check pass/fail
+  if (result.includes('通过') || result.includes('Accepted') || result.includes('AC'))
+    console.log('>>> PASS <<<');
+  else if (result.includes('答案错误') || result.includes('Wrong') || result.includes('WA'))
+    console.log('>>> FAIL: Wrong Answer <<<');
+  else if (result.includes('编译') && result.includes('错'))
+    console.log('>>> FAIL: Compile Error <<<');
+  else
+    console.log('>>> Status unclear — check manually <<<');
 
   await close(tid);
-  console.log('Done.');
 }
 
 main().catch(e => { console.error(e); process.exit(1); });

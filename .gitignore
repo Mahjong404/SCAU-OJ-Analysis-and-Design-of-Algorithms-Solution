@@ -44,6 +44,9 @@
 /.idea
 /.github
 
+# Project-local Claude config (user-specific, not shared)
+/CLAUDE.md
+
 # OJ scraping intermediate artifacts
 /descriptions/
 

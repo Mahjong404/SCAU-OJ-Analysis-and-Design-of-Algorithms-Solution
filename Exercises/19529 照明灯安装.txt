@@ -1,11 +1,26 @@
-﻿//19529 照明灯安装
+//19529 照明灯安装
 #include <iostream>
 #include <algorithm>
 using namespace std;
 
-int main() {
-    // TODO
+int x[100005];
 
+int main() {
+    ios::sync_with_stdio(false); cin.tie(0);
+    int n, k;
+    cin >> n >> k;
+    for (int i = 0; i < n; i++) cin >> x[i];
+
+    int lo = 1, hi = x[n - 1] - x[0], ans = 0;
+    while (lo <= hi) {
+        int mid = lo + (hi - lo) / 2;
+        int cnt = 1, last = x[0];
+        for (int i = 1; i < n; i++)
+            if (x[i] - last >= mid) { cnt++; last = x[i]; }
+        if (cnt >= k) { ans = mid; lo = mid + 1; }
+        else hi = mid - 1;
+    }
+    cout << ans;
     return 0;
 }
 

@@ -1,11 +1,33 @@
-﻿//19191 粉刷
+//19191 粉刷
 #include <iostream>
 #include <algorithm>
 using namespace std;
 
-int main() {
-    // TODO
+int a[105], pre0[105], pre1[105];
+int dp[105][105];
 
+int main() {
+    int N, K;
+    cin >> N >> K;
+    for (int i = 1; i <= N; i++) {
+        cin >> a[i];
+        pre0[i] = pre0[i - 1] + (a[i] == 0);
+        pre1[i] = pre1[i - 1] + (a[i] == 1);
+    }
+
+    for (int i = 1; i <= N; i++) {
+        for (int k = 1; k <= K; k++) {
+            dp[i][k] = dp[i - 1][k]; // 不粉刷i
+            for (int j = 1; j <= i; j++) {
+                // 区间[j,i]刷0（黑色）
+                dp[i][k] = max(dp[i][k], dp[j - 1][k - 1] + pre0[i] - pre0[j - 1]);
+                // 区间[j,i]刷1（白色）
+                dp[i][k] = max(dp[i][k], dp[j - 1][k - 1] + pre1[i] - pre1[j - 1]);
+            }
+        }
+    }
+
+    cout << dp[N][K];
     return 0;
 }
 

@@ -32,7 +32,8 @@ int main() {
 
     int ans = -1;
     while (!q.empty()) {
-        auto [br, bc, pr, pc, push] = q.front(); q.pop();
+        State s = q.front(); q.pop();
+        int br = s.br, bc = s.bc, pr = s.pr, pc = s.pc, push = s.push;
         if (br == er && bc == ec) { ans = push; break; }
 
         for (int d = 0; d < 4; d++) {

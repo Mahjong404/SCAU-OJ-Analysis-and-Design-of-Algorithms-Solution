@@ -1,6 +1,7 @@
 //17097 两艘船的装载问题（优先做）
 #include <iostream>
 #include <algorithm>
+#include <utility>
 using namespace std;
 
 int n, c1, c2, w[35], used[35], bestUsed[35];
@@ -23,12 +24,12 @@ void dfsFill(int i, int cap, int cur, int cnt, int& bestW, int& bestCnt) {
     dfsFill(i + 1, cap, cur, cnt, bestW, bestCnt);
 }
 
-// 给定已用mask，在剩余中最大化填cap2
-int dfsRemain(int i, int cap, int cur) {
-    if (i == n) return cur;
-    int best = dfsRemain(i + 1, cap, cur);
+// 给定已用mask，在剩余中最大化填cap，返回{weight, count}
+pair<int,int> dfsRemain(int i, int cap, int cur, int cnt) {
+    if (i == n) return {cur, cnt};
+    pair<int,int> best = dfsRemain(i + 1, cap, cur, cnt);
     if (!used[i] && cur + w[i] <= cap)
-        best = max(best, dfsRemain(i + 1, cap, cur + w[i]));
+        best = max(best, dfsRemain(i + 1, cap, cur + w[i], cnt + 1));
     return best;
 }
 
@@ -47,29 +48,21 @@ int main() {
     cin >> n >> c1 >> c2;
     for (int i = 0; i < n; i++) cin >> w[i];
 
-    // 排序：大的优先，填得快
-    sort(w, w + n);
-
     // ===== (1) 先装满c1 =====
     fill(used, used + n, 0); fill(bestUsed, bestUsed + n, 0);
     int w1a = 0, cnt1a = 0;
     dfsFill(0, c1, 0, 0, w1a, cnt1a);
     for (int i = 0; i < n; i++) used[i] = bestUsed[i];
-    int w2a = dfsRemain(0, c2, 0);
-    int cnt2a = 0;
-    for (int i = 0; i < n; i++)
-        if (!bestUsed[i] && cnt2a < n) // approximate count
-            cnt2a++;
+    pair<int,int> r2a = dfsRemain(0, c2, 0, 0);
+    int w2a = r2a.first, cnt2a = r2a.second;
 
     // ===== (2) 先装满c2 =====
     fill(used, used + n, 0); fill(bestUsed, bestUsed + n, 0);
     int w2b = 0, cnt2b = 0;
     dfsFill(0, c2, 0, 0, w2b, cnt2b);
     for (int i = 0; i < n; i++) used[i] = bestUsed[i];
-    int w1b = dfsRemain(0, c1, 0);
-    int cnt1b = 0;
-    for (int i = 0; i < n; i++)
-        if (!bestUsed[i]) cnt1b++;
+    pair<int,int> r1b = dfsRemain(0, c1, 0, 0);
+    int w1b = r1b.first, cnt1b = r1b.second;
 
     // ===== (3)(4) =====
     bestTotalW = bestTotalN = 0;

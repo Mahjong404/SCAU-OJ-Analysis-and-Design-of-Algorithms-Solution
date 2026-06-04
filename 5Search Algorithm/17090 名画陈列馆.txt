@@ -3,45 +3,77 @@
 #include <algorithm>
 using namespace std;
 
-int m, n, best;
-int grid[22][22]; // 0=未覆盖, 1=已覆盖, 2=有警卫
+int m, n, best, uncovered;
+int grid[22][22];
 
-void cover(int r, int c, int v) {
+void put(int r, int c, int v) {
     grid[r][c] += v;
-    if (r > 0) grid[r-1][c] += v;
-    if (r < m-1) grid[r+1][c] += v;
-    if (c > 0) grid[r][c-1] += v;
-    if (c < n-1) grid[r][c+1] += v;
+    if (grid[r][c] > 0 && grid[r][c] - v <= 0) uncovered--;
+    else if (grid[r][c] <= 0 && grid[r][c] - v > 0) uncovered++;
+    if (r > 0) {
+        grid[r-1][c] += v;
+        if (grid[r-1][c] > 0 && grid[r-1][c] - v <= 0) uncovered--;
+        else if (grid[r-1][c] <= 0 && grid[r-1][c] - v > 0) uncovered++;
+    }
+    if (r < m-1) {
+        grid[r+1][c] += v;
+        if (grid[r+1][c] > 0 && grid[r+1][c] - v <= 0) uncovered--;
+        else if (grid[r+1][c] <= 0 && grid[r+1][c] - v > 0) uncovered++;
+    }
+    if (c > 0) {
+        grid[r][c-1] += v;
+        if (grid[r][c-1] > 0 && grid[r][c-1] - v <= 0) uncovered--;
+        else if (grid[r][c-1] <= 0 && grid[r][c-1] - v > 0) uncovered++;
+    }
+    if (c < n-1) {
+        grid[r][c+1] += v;
+        if (grid[r][c+1] > 0 && grid[r][c+1] - v <= 0) uncovered--;
+        else if (grid[r][c+1] <= 0 && grid[r][c+1] - v > 0) uncovered++;
+    }
 }
 
-void dfs(int pos, int cnt) {
+void dfs(int r, int c, int cnt) {
     if (cnt >= best) return;
-    if (pos == m * n) {
-        // 检查全覆盖
-        for (int i = 0; i < m; i++)
-            for (int j = 0; j < n; j++)
-                if (grid[i][j] <= 0) return;
-        best = cnt;
-        return;
+    // 下界剪枝：每个警卫最多覆盖5格
+    if (cnt + (uncovered + 4) / 5 >= best) return;
+
+    while (r < m && grid[r][c] > 0) {
+        c++;
+        if (c == n) { r++; c = 0; }
     }
-    int r = pos / n, c = pos % n;
-    dfs(pos + 1, cnt);      // 不放
-    if (grid[r][c] <= 0) {   // 未被覆盖，必须放（或上方未覆盖则上方已无法覆盖）
-        cover(r, c, 1);
-        grid[r][c] += 3; // 额外标记有警卫
-        dfs(pos + 1, cnt + 1);
-        grid[r][c] -= 3;
-        cover(r, c, -1);
+
+    if (r == m) { best = cnt; return; }
+
+    // 必须覆盖(r,c)：三个选项
+    put(r, c, 1);
+    if (c + 1 < n) dfs(r, c + 1, cnt + 1);
+    else dfs(r + 1, 0, cnt + 1);
+    put(r, c, -1);
+
+    if (c + 1 < n) {
+        put(r, c + 1, 1);
+        if (c + 2 < n) dfs(r, c + 2, cnt + 1);
+        else dfs(r + 1, 0, cnt + 1);
+        put(r, c + 1, -1);
+    }
+
+    if (r + 1 < m) {
+        put(r + 1, c, 1);
+        if (c + 1 < n) dfs(r, c + 1, cnt + 1);
+        else dfs(r + 1, 0, cnt + 1);
+        put(r + 1, c, -1);
     }
 }
 
 int main() {
     cin >> m >> n;
-    best = m * n;
+    best = m * n / 3 + 1;
+    if (best < 1) best = 1;
+    uncovered = m * n;
     for (int i = 0; i < m; i++)
         for (int j = 0; j < n; j++)
             grid[i][j] = 0;
-    dfs(0, 0);
+    dfs(0, 0, 0);
     cout << best;
     return 0;
 }

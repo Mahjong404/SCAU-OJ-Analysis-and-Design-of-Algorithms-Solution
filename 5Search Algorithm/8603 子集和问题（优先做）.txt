@@ -18,7 +18,7 @@ void dfs(int i, int sum) {
         found = true;
         return;
     }
-    if (i == n || sum > c) return;
+    if (i == n) return;
 
     // 选
     x[i] = 1;

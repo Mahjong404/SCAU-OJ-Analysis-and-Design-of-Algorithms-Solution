@@ -31,7 +31,7 @@ int main() {
     dfs(1, 0);
     cout << best << '\n';
     for (int i = 1; i <= n; i++)
-        cout << bestX[i] << (i < n ? ' ' : '\0');
+        cout << bestX[i] << (i < n ? ' ' : '\n');
     return 0;
 }
 

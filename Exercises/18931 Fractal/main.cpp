@@ -1,10 +1,36 @@
-﻿//18931 分形（第二章）
+//18931 分形（第二章）
 #include <iostream>
+#include <cstring>
 using namespace std;
 
-int main() {
-    // TODO
+char g[730][730];
 
+int pow3(int k) {
+    int r = 1;
+    while (k--) r *= 3;
+    return r;
+}
+
+// 在(x,y)处绘制n级分形（左上角坐标）
+void draw(int x, int y, int n) {
+    if (n == 1) { g[x][y] = 'X'; return; }
+    int s = pow3(n - 2);
+    draw(x, y, n - 1);                      // 左上
+    draw(x, y + 2 * s, n - 1);              // 右上
+    draw(x + s, y + s, n - 1);              // 正中
+    draw(x + 2 * s, y, n - 1);              // 左下
+    draw(x + 2 * s, y + 2 * s, n - 1);      // 右下
+}
+
+int main() {
+    int n; cin >> n;
+    int size = pow3(n - 1);
+    memset(g, ' ', sizeof(g));
+    draw(0, 0, n);
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; j < size; j++) cout << g[i][j];
+        cout << '\n';
+    }
     return 0;
 }
 

@@ -1,10 +1,22 @@
-﻿//19180 集合划分问题一
+//19180 集合划分问题一
 #include <iostream>
 using namespace std;
 
-int main() {
-    // TODO
+long long S[25][25];
 
+int main() {
+    int n, m;
+    cin >> n >> m;
+
+    for (int i = 1; i <= n; i++) {
+        S[i][1] = 1;
+        S[i][i] = 1;
+    }
+    for (int i = 2; i <= n; i++)
+        for (int j = 2; j < i; j++)
+            S[i][j] = S[i - 1][j - 1] + j * S[i - 1][j];
+
+    cout << S[n][m];
     return 0;
 }
 
